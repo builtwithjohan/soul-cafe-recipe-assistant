@@ -24,10 +24,11 @@ The app currently ships with one default recipe:
 
 ## Project Structure
 
-- app.js: App logic and view state
-- recipes.js: Default recipe data
-- styles.css: App styling
-- index.html: Main entry page
+- index.html: Main entry page (GitHub Pages entry)
+- src/styles.css: App styling
+- src/app.js: App logic and view state
+- src/recipes.js: Default recipe data
+- src/assets/images/soul-cafe-logo.jpeg: Brand logo asset
 
 ## Run Locally
 

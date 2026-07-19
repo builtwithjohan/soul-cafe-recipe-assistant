@@ -1,10 +1,3 @@
-/*
-  Soul Cafe Guided Cooking
-  - Recipe search and selection
-  - Ingredient overview
-  - Step-by-step guided mode with per-step confirmation
-  - Friendly JSON recipe import
-*/
 (function () {
   "use strict";
 
@@ -152,7 +145,6 @@
     try {
       localStorage.setItem(IMPORT_STORAGE_KEY, JSON.stringify(state.importedRecipes));
     } catch (_error) {
-      // Ignore storage failures (private mode / strict settings).
     }
   }
 
@@ -205,7 +197,6 @@
       return;
     }
 
-    // Fallback for environments without dialog support.
     ui.importDialog?.setAttribute("open", "open");
   }
 
@@ -230,7 +221,6 @@
 
     result.recipes.forEach((recipe) => {
       if (existingIds.has(recipe.id)) {
-        // Keep IDs unique by appending a timestamp for imported duplicates.
         recipe.id = `${recipe.id}-${Date.now()}`;
       }
       existingIds.add(recipe.id);
@@ -459,7 +449,6 @@
     ui.confirmBtn.textContent =
       state.stepIndex === max - 1 ? "Confirm & Finish ✓" : "Confirm & Next →";
 
-    // Re-trigger a subtle entry animation for each new step card.
     ui.stepCard.classList.remove("confirm-flash");
     ui.stepCard.style.animation = "none";
     void ui.stepCard.offsetWidth;

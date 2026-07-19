@@ -29,5 +29,4 @@ const RECIPES = [
   },
 ];
 
-// Expose globally for the classic-script setup used by index.html.
 window.RECIPES = RECIPES;

@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Soul Cafe · Guided Cooking</title>
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="src/styles.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -15,7 +15,7 @@
   <body>
     <header class="app-header">
       <button class="brand" id="homeBtn" type="button" aria-label="Go to recipe list">
-        <span class="brand-mark">🍲</span>
+        <img class="brand-logo" src="src/assets/images/soul-cafe-logo.jpeg" alt="Soul Cafe logo" />
         <span class="brand-text">
           <span class="brand-name">Soul Cafe</span>
           <span class="brand-tag">Guided Cooking</span>
@@ -24,17 +24,10 @@
     </header>
 
     <main id="app" class="app-main">
-      <!-- ===================== HOME / RECIPE LIST ===================== -->
       <section id="view-home" class="view is-active">
         <div class="home-intro">
           <h1>What are we cooking today?</h1>
           <p>Pick a recipe and I'll guide you one step at a time.</p>
-          <div class="home-actions">
-            <button id="openImportBtn" class="btn btn-ghost" type="button">Import Recipes</button>
-            <button id="downloadTemplateBtn" class="btn btn-ghost" type="button">
-              Download Template
-            </button>
-          </div>
           <div class="search-wrap">
             <span class="search-icon" aria-hidden="true">🔍</span>
             <input
@@ -49,9 +42,18 @@
         </div>
         <div id="recipeGrid" class="recipe-grid" role="list"></div>
         <p id="noResults" class="no-results" hidden>No recipes match your search.</p>
+        <section class="home-end-actions" aria-label="Recipe tools">
+          <h2>Add or update your recipe list</h2>
+          <p>Import your own menu or start from the JSON template.</p>
+          <div class="home-end-actions-row">
+            <button id="openImportBtn" class="btn btn-primary" type="button">Import Recipes</button>
+            <button id="downloadTemplateBtn" class="btn btn-ghost" type="button">
+              Download Template
+            </button>
+          </div>
+        </section>
       </section>
 
-      <!-- ===================== RECIPE OVERVIEW (PREP) ===================== -->
       <section id="view-overview" class="view">
         <button class="back-link" data-nav="home" type="button">← All recipes</button>
         <div class="overview-card">
@@ -73,7 +75,6 @@
         </div>
       </section>
 
-      <!-- ===================== GUIDED COOKING ===================== -->
       <section id="view-cook" class="view">
         <div class="cook-topbar">
           <button class="back-link" data-nav="overview" type="button">← Ingredients</button>
@@ -124,7 +125,6 @@
         </div>
       </section>
 
-      <!-- ===================== DONE ===================== -->
       <section id="view-done" class="view">
         <div class="done-card">
           <span class="done-emoji" id="doneEmoji" aria-hidden="true">🎉</span>
@@ -173,7 +173,7 @@
       </form>
     </dialog>
 
-    <script src="recipes.js"></script>
-    <script src="app.js"></script>
+    <script src="src/recipes.js"></script>
+    <script src="src/app.js"></script>
   </body>
 </html>
