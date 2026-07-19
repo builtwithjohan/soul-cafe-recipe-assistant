@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Soul Cafe · Guided Cooking</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header class="app-header">
+      <button class="brand" id="homeBtn" type="button" aria-label="Go to recipe list">
+        <span class="brand-mark">🍲</span>
+        <span class="brand-text">
+          <span class="brand-name">Soul Cafe</span>
+          <span class="brand-tag">Guided Cooking</span>
+        </span>
+      </button>
+    </header>
+
+    <main id="app" class="app-main">
+      <!-- ===================== HOME / RECIPE LIST ===================== -->
+      <section id="view-home" class="view is-active">
+        <div class="home-intro">
+          <h1>What are we cooking today?</h1>
+          <p>Pick a recipe and I'll guide you one step at a time.</p>
+          <div class="home-actions">
+            <button id="openImportBtn" class="btn btn-ghost" type="button">Import Recipes</button>
+            <button id="downloadTemplateBtn" class="btn btn-ghost" type="button">
+              Download Template
+            </button>
+          </div>
+          <div class="search-wrap">
+            <span class="search-icon" aria-hidden="true">🔍</span>
+            <input
+              id="searchInput"
+              class="search-input"
+              type="search"
+              placeholder="Search recipes…"
+              autocomplete="off"
+              aria-label="Search recipes"
+            />
+          </div>
+        </div>
+        <div id="recipeGrid" class="recipe-grid" role="list"></div>
+        <p id="noResults" class="no-results" hidden>No recipes match your search.</p>
+      </section>
+
+      <!-- ===================== RECIPE OVERVIEW (PREP) ===================== -->
+      <section id="view-overview" class="view">
+        <button class="back-link" data-nav="home" type="button">← All recipes</button>
+        <div class="overview-card">
+          <div class="overview-hero">
+            <span id="ovEmoji" class="overview-emoji" aria-hidden="true">🍲</span>
+            <div>
+              <h1 id="ovName" class="overview-name"></h1>
+              <p id="ovDesc" class="overview-desc"></p>
+              <div class="meta-row" id="ovMeta"></div>
+            </div>
+          </div>
+
+          <h2 class="section-title">You'll need</h2>
+          <ul id="ovIngredients" class="ingredient-list"></ul>
+
+          <button id="startCookBtn" class="btn btn-primary btn-block" type="button">
+            Start Cooking →
+          </button>
+        </div>
+      </section>
+
+      <!-- ===================== GUIDED COOKING ===================== -->
+      <section id="view-cook" class="view">
+        <div class="cook-topbar">
+          <button class="back-link" data-nav="overview" type="button">← Ingredients</button>
+          <span id="stepCounter" class="step-counter">Step 1 of 1</span>
+        </div>
+
+        <div class="progress-track" aria-hidden="true">
+          <div id="progressBar" class="progress-fill"></div>
+        </div>
+
+        <div class="step-card" id="stepCard">
+          <div class="step-index">
+            <span id="stepBadge" class="step-badge">1</span>
+          </div>
+
+          <div class="step-field step-ingredient">
+            <span class="field-label">Ingredient</span>
+            <span id="stepIngredient" class="field-value"></span>
+          </div>
+
+          <div class="step-grid">
+            <div class="step-field">
+              <span class="field-label">Quantity</span>
+              <span id="stepQuantity" class="field-value field-pill"></span>
+            </div>
+            <div class="step-field">
+              <span class="field-label">Placement</span>
+              <span id="stepPlacement" class="field-value"></span>
+            </div>
+          </div>
+
+          <div class="step-field step-action">
+            <span class="field-label">How to</span>
+            <span id="stepAction" class="field-value"></span>
+          </div>
+
+          <div id="stepDurationWrap" class="step-duration">
+            <span aria-hidden="true">⏱️</span>
+            <span id="stepDuration"></span>
+          </div>
+        </div>
+
+        <div class="cook-controls">
+          <button id="prevBtn" class="btn btn-ghost" type="button">← Back</button>
+          <button id="confirmBtn" class="btn btn-primary btn-confirm" type="button">
+            Confirm &amp; Next →
+          </button>
+        </div>
+      </section>
+
+      <!-- ===================== DONE ===================== -->
+      <section id="view-done" class="view">
+        <div class="done-card">
+          <span class="done-emoji" id="doneEmoji" aria-hidden="true">🎉</span>
+          <h1 id="doneTitle">Well done, chef!</h1>
+          <p id="doneText">Your dish is ready to serve. Enjoy!</p>
+          <div class="done-actions">
+            <button id="cookAgainBtn" class="btn btn-primary" type="button">Cook again</button>
+            <button class="btn btn-ghost" data-nav="home" type="button">Back to recipes</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <dialog id="importDialog" class="import-dialog">
+      <form method="dialog" class="import-panel" id="importForm">
+        <div class="import-header">
+          <h2>Import Recipes</h2>
+          <button id="closeImportBtn" class="btn btn-ghost btn-sm" type="button">Close</button>
+        </div>
+
+        <p class="import-help">
+          Paste recipe JSON or upload a .json file. You can import one or many recipes at once.
+        </p>
+
+        <div class="import-row">
+          <label class="import-label" for="importFileInput">Upload .json file</label>
+          <input id="importFileInput" class="import-file" type="file" accept="application/json,.json" />
+        </div>
+
+        <div class="import-row">
+          <label class="import-label" for="importText">Or paste JSON</label>
+          <textarea
+            id="importText"
+            class="import-text"
+            placeholder='Example: [{"name":"Tomato Omelette","ingredients":[{"name":"Egg","quantity":"2"}],"steps":[{"ingredient":"Egg","quantity":"2","placement":"Bowl","action":"Whisk"}]}]'
+          ></textarea>
+        </div>
+
+        <div class="import-actions">
+          <button id="pasteSampleBtn" class="btn btn-ghost" type="button">Use Sample</button>
+          <button id="clearImportedBtn" class="btn btn-ghost" type="button">Clear Imported</button>
+          <button id="importRecipesBtn" class="btn btn-primary" type="button">Import Now</button>
+        </div>
+
+        <p id="importStatus" class="import-status" aria-live="polite"></p>
+      </form>
+    </dialog>
+
+    <script src="recipes.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
