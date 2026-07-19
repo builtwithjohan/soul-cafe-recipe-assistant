@@ -10,6 +10,12 @@ A lightweight guided-cooking web app that helps you pick a recipe and complete i
 - JSON recipe import support
 - Downloadable recipe template support
 
+## Default Recipe
+
+The app currently ships with one default recipe:
+
+- Pesto Flatbread Pizza
+
 ## Tech Stack
 
 - HTML
@@ -19,7 +25,7 @@ A lightweight guided-cooking web app that helps you pick a recipe and complete i
 ## Project Structure
 
 - app.js: App logic and view state
-- recipes.js: Built-in recipe data
+- recipes.js: Default recipe data
 - styles.css: App styling
 - index.html: Main entry page
 
