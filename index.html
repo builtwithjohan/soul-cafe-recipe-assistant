@@ -24,10 +24,52 @@
     </header>
 
     <main id="app" class="app-main">
-      <section id="view-home" class="view is-active">
+      <section id="view-landing" class="view is-active">
+        <div class="landing-hero">
+          <p class="landing-kicker">Soul Cafe Operations</p>
+          <h1>Choose your workspace</h1>
+          <p>
+            One command center for chefs, menus, orders, and management analytics.
+            Navigate fast, with the right gate on the right workflow.
+          </p>
+        </div>
+
+        <div class="landing-grid" role="list">
+          <button id="openRecipesWorkspaceBtn" class="landing-card" type="button" role="listitem">
+            <span class="landing-card-icon" aria-hidden="true">👨‍🍳</span>
+            <h2>Recipes for Chefs</h2>
+            <p>Cook step-by-step, import recipe sheets, and run service fast.</p>
+            <span class="landing-card-badge">Local Gate</span>
+          </button>
+
+          <button id="openMenusWorkspaceBtn" class="landing-card" type="button" role="listitem">
+            <span class="landing-card-icon" aria-hidden="true">📋</span>
+            <h2>Menus</h2>
+            <p>Browse curated menu packs and prep focus by meal period.</p>
+            <span class="landing-card-badge is-open">Open Access</span>
+          </button>
+
+          <button id="openOrderingWorkspaceBtn" class="landing-card" type="button" role="listitem">
+            <span class="landing-card-icon" aria-hidden="true">🧾</span>
+            <h2>Ordering</h2>
+            <p>Create queue entries quickly for dine-in or takeaway orders.</p>
+            <span class="landing-card-badge is-open">Open Access</span>
+          </button>
+
+          <button id="openDashboardWorkspaceBtn" class="landing-card" type="button" role="listitem">
+            <span class="landing-card-icon" aria-hidden="true">📊</span>
+            <h2>Manager Dashboard</h2>
+            <p>Track daily usage, recipe performance, prep time, and sale cost.</p>
+            <span class="landing-card-badge">Manager Gate</span>
+          </button>
+        </div>
+      </section>
+
+      <section id="view-home" class="view">
         <div class="home-intro">
           <h1>What are we cooking today?</h1>
           <p>Pick a recipe and I'll guide you one step at a time.</p>
+          <button class="back-link" data-nav="landing" type="button">← Back to workspace</button>
           <div class="search-wrap">
             <span class="search-icon" aria-hidden="true">🔍</span>
             <input
@@ -42,13 +84,60 @@
         </div>
         <div id="recipeGrid" class="recipe-grid" role="list"></div>
         <p id="noResults" class="no-results" hidden>No recipes match your search.</p>
+
+        <section class="home-end-actions" aria-label="Chef order queue">
+          <h2>Queue to Prepare</h2>
+          <p>Pick a queued order and jump directly into cooking.</p>
+          <div id="chefQueueList" class="chef-queue-list"></div>
+          <p id="chefQueueStatus" class="import-status" aria-live="polite"></p>
+        </section>
+
         <section class="home-end-actions" aria-label="Recipe tools">
           <h2>Add or update your recipe list</h2>
-          <p>Import your own menu or start from the JSON template.</p>
+          <p>Import recipes from JSON, CSV, XLS, or XLSX and start from the provided template.</p>
           <div class="home-end-actions-row">
             <button id="openImportBtn" class="btn btn-primary" type="button">Import Recipes</button>
             <button id="downloadTemplateBtn" class="btn btn-ghost" type="button">
-              Download Template
+              Download CSV Template
+            </button>
+          </div>
+        </section>
+
+        <section class="home-end-actions local-gate-panel" aria-label="Local login gate">
+          <h2>Local Login Gate</h2>
+          <p>Optional gate for local use only. It is ignored on hosted environments.</p>
+          <div class="local-gate-grid">
+            <label class="import-label" for="gateUsernameInput">Username</label>
+            <input
+              id="gateUsernameInput"
+              class="search-input"
+              type="text"
+              placeholder="chef"
+              autocomplete="off"
+            />
+
+            <label class="import-label" for="gatePasswordInput">Password</label>
+            <input
+              id="gatePasswordInput"
+              class="search-input"
+              type="password"
+              placeholder="Set a local gate password"
+              autocomplete="new-password"
+            />
+          </div>
+          <div class="home-end-actions-row">
+            <button id="saveGateBtn" class="btn btn-primary" type="button">Enable / Update Gate</button>
+            <button id="disableGateBtn" class="btn btn-ghost" type="button">Disable Gate</button>
+          </div>
+          <p id="gateStatus" class="import-status" aria-live="polite"></p>
+        </section>
+
+        <section class="home-end-actions" aria-label="Manager dashboard tools">
+          <h2>Manager Dashboard</h2>
+          <p>View daily ingredient usage and recipe view analytics.</p>
+          <div class="home-end-actions-row">
+            <button id="openDashboardBtn" class="btn btn-primary" type="button">
+              Open Manager Dashboard
             </button>
           </div>
         </section>
@@ -72,6 +161,115 @@
           <button id="startCookBtn" class="btn btn-primary btn-block" type="button">
             Start Cooking →
           </button>
+        </div>
+      </section>
+
+      <section id="view-menus" class="view">
+        <button class="back-link" data-nav="landing" type="button">← Back to workspace</button>
+        <div class="overview-card">
+          <h1 class="overview-name">Menus</h1>
+          <p class="overview-desc">Non-gated menu board for quick service planning.</p>
+
+          <div class="menu-columns">
+            <div class="menu-card">
+              <h2>Breakfast</h2>
+              <ul>
+                <li>Masala Toast Combo</li>
+                <li>Tomato Omelette Plate</li>
+                <li>Fresh Brew + Fruit Cup</li>
+              </ul>
+            </div>
+            <div class="menu-card">
+              <h2>Lunch</h2>
+              <ul>
+                <li>Pesto Flatbread Pizza</li>
+                <li>Garden Salad Bowl</li>
+                <li>Roasted Veg Wrap</li>
+              </ul>
+            </div>
+            <div class="menu-card">
+              <h2>Evening</h2>
+              <ul>
+                <li>Chef Special Soup</li>
+                <li>Loaded Flatbread Bites</li>
+                <li>Hot Chocolate Brownie</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-ordering" class="view">
+        <button class="back-link" data-nav="landing" type="button">← Back to workspace</button>
+        <div class="overview-card">
+          <h1 class="overview-name">Ordering</h1>
+          <p class="overview-desc">Open access order queue for front-of-house operations.</p>
+
+          <div class="ordering-grid">
+            <div class="import-row">
+              <label class="import-label" for="orderCustomerInput">Customer Name</label>
+              <input id="orderCustomerInput" class="search-input" type="text" placeholder="Alex" />
+            </div>
+
+            <div class="import-row">
+              <label class="import-label" for="orderRecipeSelect">Recipe</label>
+              <select id="orderRecipeSelect" class="search-input"></select>
+            </div>
+
+            <div class="import-row">
+              <label class="import-label" for="orderQtyInput">Quantity</label>
+              <input id="orderQtyInput" class="search-input" type="number" min="1" value="1" />
+            </div>
+
+            <div class="import-row">
+              <label class="import-label" for="orderTypeSelect">Order Type</label>
+              <select id="orderTypeSelect" class="search-input">
+                <option value="Dine-in">Dine-in</option>
+                <option value="Takeaway">Takeaway</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="home-end-actions-row">
+            <button id="addOrderBtn" class="btn btn-primary" type="button">Add to Queue</button>
+            <button id="clearOrdersBtn" class="btn btn-ghost" type="button">Clear Queue</button>
+            <button id="clearPreparedOrdersBtn" class="btn btn-ghost" type="button">
+              Clear Prepared History
+            </button>
+          </div>
+          <p id="orderingStatus" class="import-status" aria-live="polite"></p>
+
+          <h2 class="section-title">Live Queue</h2>
+          <div class="dashboard-table-wrap">
+            <table class="dashboard-table">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Customer</th>
+                  <th>Recipe</th>
+                  <th>Qty</th>
+                  <th>Type</th>
+                </tr>
+              </thead>
+              <tbody id="orderQueueBody"></tbody>
+            </table>
+          </div>
+
+          <h2 class="section-title">Prepared Orders History</h2>
+          <div class="dashboard-table-wrap">
+            <table class="dashboard-table">
+              <thead>
+                <tr>
+                  <th>Prepared At</th>
+                  <th>Customer</th>
+                  <th>Recipe</th>
+                  <th>Qty</th>
+                  <th>Type</th>
+                </tr>
+              </thead>
+              <tbody id="preparedOrdersBody"></tbody>
+            </table>
+          </div>
         </div>
       </section>
 
@@ -136,6 +334,66 @@
           </div>
         </div>
       </section>
+
+      <section id="view-dashboard" class="view">
+        <div class="cook-topbar">
+          <button class="back-link" data-nav="home" type="button">← Back to recipes</button>
+          <button id="managerLogoutBtn" class="btn btn-ghost btn-sm" type="button">Manager Logout</button>
+        </div>
+
+        <div class="overview-card">
+          <div class="dashboard-head">
+            <h1 class="overview-name">Manager Dashboard</h1>
+            <div class="dashboard-date-wrap">
+              <label class="import-label" for="dashboardDateInput">Day</label>
+              <input id="dashboardDateInput" class="search-input" type="date" />
+            </div>
+          </div>
+
+          <div class="dashboard-summary" id="dashboardSummary"></div>
+
+          <div class="home-end-actions-row dashboard-export-actions">
+            <button id="exportIngredientTrackerBtn" class="btn btn-primary" type="button">
+              Export Ingredient Tracker CSV
+            </button>
+            <button id="exportRecipeViewsBtn" class="btn btn-ghost" type="button">
+              Export Recipe Views CSV
+            </button>
+          </div>
+
+          <h2 class="section-title">Ingredients Used (Daily)</h2>
+          <div class="dashboard-table-wrap">
+            <table class="dashboard-table" id="ingredientTable">
+              <thead>
+                <tr>
+                  <th>Ingredient</th>
+                  <th>Times Used</th>
+                  <th>Total Quantity (Parsed)</th>
+                  <th>Quantity Notes</th>
+                </tr>
+              </thead>
+              <tbody id="ingredientTableBody"></tbody>
+            </table>
+          </div>
+
+          <h2 class="section-title">Recipe Views (Daily)</h2>
+          <div class="dashboard-table-wrap">
+            <table class="dashboard-table" id="recipeViewsTable">
+              <thead>
+                <tr>
+                  <th>Recipe</th>
+                  <th>Views</th>
+                  <th>Runs</th>
+                  <th>Avg Time Taken</th>
+                  <th>Cost of Sale / Run</th>
+                  <th>Total Cost of Sale</th>
+                </tr>
+              </thead>
+              <tbody id="recipeViewsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
     </main>
 
     <dialog id="importDialog" class="import-dialog">
@@ -146,20 +404,26 @@
         </div>
 
         <p class="import-help">
-          Paste recipe JSON or upload a .json file. You can import one or many recipes at once.
+          Paste JSON or CSV, or upload .json, .csv, .xls, or .xlsx files.
+          You can import one or many recipes at once.
         </p>
 
         <div class="import-row">
-          <label class="import-label" for="importFileInput">Upload .json file</label>
-          <input id="importFileInput" class="import-file" type="file" accept="application/json,.json" />
+          <label class="import-label" for="importFileInput">Upload .json, .csv, .xls, or .xlsx file</label>
+          <input
+            id="importFileInput"
+            class="import-file"
+            type="file"
+            accept="application/json,.json,text/csv,.csv,application/vnd.ms-excel,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.xlsx"
+          />
         </div>
 
         <div class="import-row">
-          <label class="import-label" for="importText">Or paste JSON</label>
+          <label class="import-label" for="importText">Or paste JSON / CSV</label>
           <textarea
             id="importText"
             class="import-text"
-            placeholder='Example: [{"name":"Tomato Omelette","ingredients":[{"name":"Egg","quantity":"2"}],"steps":[{"ingredient":"Egg","quantity":"2","placement":"Bowl","action":"Whisk"}]}]'
+            placeholder="Example header for CSV: recipe_id,recipe_name,recipe_description,recipe_servings,recipe_time,recipe_difficulty,ingredient_name,ingredient_quantity,step_order,step_ingredient,step_quantity,step_placement,step_action,step_duration"
           ></textarea>
         </div>
 
@@ -173,7 +437,71 @@
       </form>
     </dialog>
 
+    <dialog id="loginDialog" class="import-dialog">
+      <form method="dialog" class="import-panel" id="loginForm">
+        <div class="import-header">
+          <h2>Unlock Soul Cafe</h2>
+        </div>
+        <p class="import-help">
+          This local environment is protected by a login gate. Sign in to continue.
+        </p>
+
+        <div class="import-row">
+          <label class="import-label" for="loginUsernameInput">Username</label>
+          <input id="loginUsernameInput" class="search-input" type="text" autocomplete="username" />
+        </div>
+
+        <div class="import-row">
+          <label class="import-label" for="loginPasswordInput">Password</label>
+          <input
+            id="loginPasswordInput"
+            class="search-input"
+            type="password"
+            autocomplete="current-password"
+          />
+        </div>
+
+        <div class="import-actions">
+          <button id="loginSubmitBtn" class="btn btn-primary" type="button">Sign In</button>
+        </div>
+        <p id="loginStatus" class="import-status" aria-live="polite"></p>
+      </form>
+    </dialog>
+
+    <dialog id="managerLoginDialog" class="import-dialog">
+      <form method="dialog" class="import-panel" id="managerLoginForm">
+        <div class="import-header">
+          <h2>Manager Sign In</h2>
+        </div>
+        <p class="import-help">This dashboard is restricted to cafe managers.</p>
+
+        <div class="import-row">
+          <label class="import-label" for="managerUsernameInput">Username</label>
+          <input id="managerUsernameInput" class="search-input" type="text" autocomplete="username" />
+        </div>
+
+        <div class="import-row">
+          <label class="import-label" for="managerPasswordInput">Password</label>
+          <input
+            id="managerPasswordInput"
+            class="search-input"
+            type="password"
+            autocomplete="current-password"
+          />
+        </div>
+
+        <div class="import-actions">
+          <button id="managerLoginSubmitBtn" class="btn btn-primary" type="button">Sign In</button>
+        </div>
+        <p id="managerLoginStatus" class="import-status" aria-live="polite"></p>
+      </form>
+    </dialog>
+
     <script src="src/recipes.js"></script>
+    <script src="src/store.js"></script>
+    <script src="src/router.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="src/modules/core/app-core.js"></script>
     <script src="src/app.js"></script>
   </body>
 </html>
