@@ -17,6 +17,8 @@
   const MANAGER_GATE_SESSION_STORAGE_KEY = "soul-cafe-manager-gate-session";
   const GATE_ATTEMPTS_STORAGE_KEY = "soul-cafe-local-gate-attempts";
   const MANAGER_ATTEMPTS_STORAGE_KEY = "soul-cafe-manager-gate-attempts";
+  const DRINK_TEMPERATURE_KEYS = ["hot", "cold"];
+  const DRINK_SIZE_KEYS = ["175ml", "250ml", "325ml", "350ml"];
   
   
   const LEGACY_LOCAL_SEED_HASH =
@@ -51,8 +53,13 @@
     searchInput: document.getElementById("searchInput"),
     recipeGrid: document.getElementById("recipeGrid"),
     noResults: document.getElementById("noResults"),
+    catFoodTab: document.getElementById("catFoodTab"),
+    catDrinksTab: document.getElementById("catDrinksTab"),
+    catMasterTab: document.getElementById("catMasterTab"),
+    drinkSubtabs: document.getElementById("drinkSubtabs"),
     chefQueueList: document.getElementById("chefQueueList"),
     chefQueueStatus: document.getElementById("chefQueueStatus"),
+    chefQueueSection: document.getElementById("chefQueueSection"),
     openRecipesWorkspaceBtn: document.getElementById("openRecipesWorkspaceBtn"),
     openMenusWorkspaceBtn: document.getElementById("openMenusWorkspaceBtn"),
     openOrderingWorkspaceBtn: document.getElementById("openOrderingWorkspaceBtn"),
@@ -60,10 +67,16 @@
     openImportBtn: document.getElementById("openImportBtn"),
     downloadTemplateBtn: document.getElementById("downloadTemplateBtn"),
 
+    ovBackBtn: document.getElementById("ovBackBtn"),
     ovEmoji: document.getElementById("ovEmoji"),
     ovName: document.getElementById("ovName"),
     ovDesc: document.getElementById("ovDesc"),
     ovMeta: document.getElementById("ovMeta"),
+    ovDrinkOptions: document.getElementById("ovDrinkOptions"),
+    ovTemperatureGroup: document.getElementById("ovTemperatureGroup"),
+    ovTemperatureOptions: document.getElementById("ovTemperatureOptions"),
+    ovSizeGroup: document.getElementById("ovSizeGroup"),
+    ovSizeOptions: document.getElementById("ovSizeOptions"),
     ovIngredients: document.getElementById("ovIngredients"),
     startCookBtn: document.getElementById("startCookBtn"),
 
@@ -84,6 +97,7 @@
     doneTitle: document.getElementById("doneTitle"),
     doneText: document.getElementById("doneText"),
     cookAgainBtn: document.getElementById("cookAgainBtn"),
+    doneBackBtn: document.getElementById("doneBackBtn"),
 
     importDialog: document.getElementById("importDialog"),
     closeImportBtn: document.getElementById("closeImportBtn"),
@@ -133,14 +147,22 @@
     preparedOrdersBody: document.getElementById("preparedOrdersBody"),
   };
 
-  const baseRecipes = Array.isArray(window.RECIPES) ? window.RECIPES.slice() : [];
+  const foodRecipes = Array.isArray(window.RECIPES) ? window.RECIPES : [];
+  const drinkRecipes = Array.isArray(window.DRINKS) ? window.DRINKS : [];
+  const seasonalRecipes = Array.isArray(window.SEASONAL_SPECIALS) ? window.SEASONAL_SPECIALS : [];
+  const componentRecipes = Array.isArray(window.COMPONENTS) ? window.COMPONENTS : [];
+  const baseRecipes = [...foodRecipes, ...drinkRecipes, ...seasonalRecipes, ...componentRecipes];
 
   const state = {
     recipes: [],
     importedRecipes: [],
     selectedRecipe: null,
+    recipeBackStack: [],
     stepIndex: 0,
     search: "",
+    category: "food",
+    drinkType: "hot",
+    selectedDrinkOptions: {},
     gateConfig: null,
     isAuthorized: true,
     managerGateConfig: null,
@@ -213,6 +235,231 @@
     return { name, quantity };
   }
 
+  function normalizeBooleanOptions(entry, keys) {
+    const source = entry && typeof entry === "object" ? entry : {};
+    const result = {};
+
+    keys.forEach((key) => {
+      if (source[key] === true) {
+        result[key] = true;
+      }
+    });
+
+    return result;
+  }
+
+  function normalizeTemperatureValue(value) {
+    const normalized = toText(value, "").toLowerCase();
+    if (normalized === "hot") return "hot";
+    if (normalized === "cold" || normalized === "iced") return "cold";
+    return normalized;
+  }
+
+  function normalizeIngredientList(entries) {
+    return Array.isArray(entries) ? entries.map(normalizeIngredient).filter(Boolean) : [];
+  }
+
+  function normalizeDrinkIngredientVariants(entry) {
+    const source = entry && typeof entry === "object" ? entry : {};
+    const result = {};
+
+    DRINK_TEMPERATURE_KEYS.forEach((temperature) => {
+      const sizes = source[temperature];
+      if (!sizes || typeof sizes !== "object") return;
+
+      const normalizedSizes = {};
+      DRINK_SIZE_KEYS.forEach((size) => {
+        const ingredients = normalizeIngredientList(sizes[size]);
+        if (ingredients.length) {
+          normalizedSizes[size] = ingredients;
+        }
+      });
+
+      if (Object.keys(normalizedSizes).length) {
+        result[temperature] = normalizedSizes;
+      }
+    });
+
+    return result;
+  }
+
+  function drinkConfigFor(recipe) {
+    return {
+      temperatures: normalizeBooleanOptions(recipe && recipe.temperatures, DRINK_TEMPERATURE_KEYS),
+      sizes: normalizeBooleanOptions(recipe && recipe.sizes, DRINK_SIZE_KEYS),
+      ingredientVariants: normalizeDrinkIngredientVariants(recipe && recipe.ingredientVariants),
+    };
+  }
+
+  function isDrinkRecipe(recipe) {
+    return recipeCategoryOf(recipe) === "drinks";
+  }
+
+  function listDrinkTemperatures(recipe) {
+    const config = drinkConfigFor(recipe);
+    const available = new Set();
+
+    DRINK_TEMPERATURE_KEYS.forEach((temperature) => {
+      if (config.temperatures[temperature] || config.ingredientVariants[temperature]) {
+        available.add(temperature);
+      }
+    });
+
+    const drinkType = normalizeTemperatureValue(recipe && recipe.drinkType);
+    if (drinkType === "hot" || drinkType === "cold") {
+      available.add(drinkType);
+    }
+
+    return DRINK_TEMPERATURE_KEYS.filter((temperature) => available.has(temperature));
+  }
+
+  function listDrinkSizes(recipe, temperature) {
+    const config = drinkConfigFor(recipe);
+    const available = new Set();
+
+    DRINK_SIZE_KEYS.forEach((size) => {
+      if (config.sizes[size]) {
+        available.add(size);
+      }
+    });
+
+    const variantSizes = config.ingredientVariants[temperature] || {};
+    DRINK_SIZE_KEYS.forEach((size) => {
+      if (variantSizes[size]) {
+        available.add(size);
+      }
+    });
+
+    if (!available.size) {
+      DRINK_TEMPERATURE_KEYS.forEach((key) => {
+        const sizes = config.ingredientVariants[key] || {};
+        DRINK_SIZE_KEYS.forEach((size) => {
+          if (sizes[size]) {
+            available.add(size);
+          }
+        });
+      });
+    }
+
+    return DRINK_SIZE_KEYS.filter((size) => available.has(size));
+  }
+
+  function activeDrinkSelectionFor(recipe) {
+    if (!isDrinkRecipe(recipe)) return null;
+
+    const temperatures = listDrinkTemperatures(recipe);
+    const defaultTemperature = temperatures[0] || "";
+    const hasSizeOptions = listDrinkSizes(recipe, defaultTemperature).length > 0;
+    if (!temperatures.length && !hasSizeOptions) return null;
+
+    const stored = state.selectedDrinkOptions[recipe.id] || {};
+    const temperature = temperatures.includes(stored.temperature) ? stored.temperature : defaultTemperature;
+    const sizes = listDrinkSizes(recipe, temperature);
+    const size = sizes.includes(stored.size) ? stored.size : sizes[0] || "";
+
+    state.selectedDrinkOptions[recipe.id] = { temperature, size };
+    return state.selectedDrinkOptions[recipe.id];
+  }
+
+  function activeIngredientsFor(recipe) {
+    const baseIngredients = normalizeIngredientList(recipe && recipe.ingredients);
+    if (!isDrinkRecipe(recipe)) return baseIngredients;
+
+    const selection = activeDrinkSelectionFor(recipe);
+    if (!selection) return baseIngredients;
+
+    const config = drinkConfigFor(recipe);
+    const variantsByTemperature = config.ingredientVariants[selection.temperature] || {};
+    const variantIngredients = variantsByTemperature[selection.size] || [];
+
+    return variantIngredients.length ? variantIngredients : baseIngredients;
+  }
+
+  function searchableIngredientsFor(recipe) {
+    const seen = new Map();
+
+    normalizeIngredientList(recipe && recipe.ingredients).forEach((ingredient) => {
+      seen.set(`${ingredient.name}|${ingredient.quantity}`, ingredient);
+    });
+
+    const config = drinkConfigFor(recipe);
+    DRINK_TEMPERATURE_KEYS.forEach((temperature) => {
+      const sizes = config.ingredientVariants[temperature] || {};
+      DRINK_SIZE_KEYS.forEach((size) => {
+        (sizes[size] || []).forEach((ingredient) => {
+          seen.set(`${ingredient.name}|${ingredient.quantity}`, ingredient);
+        });
+      });
+    });
+
+    return Array.from(seen.values());
+  }
+
+  function formatDrinkOptionLabel(value) {
+    if (value === "hot") return "Hot";
+    if (value === "cold") return "Cold";
+    return value;
+  }
+
+  function updateDrinkSelection(recipe, nextSelection) {
+    if (!recipe || !recipe.id) return;
+
+    const current = activeDrinkSelectionFor(recipe) || { temperature: "", size: "" };
+    state.selectedDrinkOptions[recipe.id] = {
+      temperature: Object.prototype.hasOwnProperty.call(nextSelection, "temperature")
+        ? nextSelection.temperature
+        : current.temperature,
+      size: Object.prototype.hasOwnProperty.call(nextSelection, "size") ? nextSelection.size : current.size,
+    };
+  }
+
+  function renderDrinkOptionButtons(container, values, selectedValue, onSelect) {
+    if (!container) return;
+
+    container.innerHTML = "";
+    values.forEach((value) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "drink-option-chip";
+      button.classList.toggle("is-active", value === selectedValue);
+      button.setAttribute("aria-pressed", String(value === selectedValue));
+      button.textContent = formatDrinkOptionLabel(value);
+      button.addEventListener("click", () => onSelect(value));
+      container.appendChild(button);
+    });
+  }
+
+  function renderOverviewDrinkOptions(recipe) {
+    if (!ui.ovDrinkOptions || !ui.ovTemperatureGroup || !ui.ovSizeGroup) return;
+
+    const selection = activeDrinkSelectionFor(recipe);
+    if (!selection) {
+      ui.ovDrinkOptions.hidden = true;
+      ui.ovTemperatureGroup.hidden = true;
+      ui.ovSizeGroup.hidden = true;
+      if (ui.ovTemperatureOptions) ui.ovTemperatureOptions.innerHTML = "";
+      if (ui.ovSizeOptions) ui.ovSizeOptions.innerHTML = "";
+      return;
+    }
+
+    const temperatures = listDrinkTemperatures(recipe);
+    const sizes = listDrinkSizes(recipe, selection.temperature);
+
+    ui.ovDrinkOptions.hidden = false;
+    ui.ovTemperatureGroup.hidden = !temperatures.length;
+    ui.ovSizeGroup.hidden = !sizes.length;
+
+    renderDrinkOptionButtons(ui.ovTemperatureOptions, temperatures, selection.temperature, (temperature) => {
+      updateDrinkSelection(recipe, { temperature, size: "" });
+      openRecipeOverview(recipe.id, { keepStack: true, orderId: state.activeOrderContext && state.activeOrderContext.orderId });
+    });
+
+    renderDrinkOptionButtons(ui.ovSizeOptions, sizes, activeDrinkSelectionFor(recipe).size, (size) => {
+      updateDrinkSelection(recipe, { size });
+      openRecipeOverview(recipe.id, { keepStack: true, orderId: state.activeOrderContext && state.activeOrderContext.orderId });
+    });
+  }
+
   function normalizeStep(entry) {
     if (!entry || typeof entry !== "object") return null;
 
@@ -250,12 +497,17 @@
       name,
       emoji: toText(recipe.emoji, "🍽️"),
       description: toText(recipe.description, "Imported recipe"),
+      category: toText(recipe.category, "food"),
+      drinkType: toText(recipe.drinkType, ""),
       servings: Number.isFinite(Number(recipe.servings)) ? Number(recipe.servings) : 2,
       time: toText(recipe.time, "20 min"),
       difficulty: ["Easy", "Medium", "Hard"].includes(recipe.difficulty)
         ? recipe.difficulty
         : "Easy",
       ingredients,
+      temperatures: normalizeBooleanOptions(recipe.temperatures, DRINK_TEMPERATURE_KEYS),
+      sizes: normalizeBooleanOptions(recipe.sizes, DRINK_SIZE_KEYS),
+      ingredientVariants: normalizeDrinkIngredientVariants(recipe.ingredientVariants),
       steps,
       source: "imported",
     };
@@ -843,10 +1095,11 @@
   }
 
   function trackIngredientsUsed(recipe) {
-    if (!recipe || !Array.isArray(recipe.ingredients)) return;
+    const ingredients = activeIngredientsFor(recipe);
+    if (!ingredients.length) return;
 
     const day = getTodayKey();
-    const entries = recipe.ingredients
+    const entries = ingredients
       .map((ing) => {
         const ingredientName = toText(ing && ing.name, "");
         if (!ingredientName) return null;
@@ -1453,11 +1706,11 @@
     ui.chefQueueList.innerHTML = "";
     const queued = state.orderQueue.filter((order) => order.status !== "prepared");
 
+    if (ui.chefQueueSection) {
+      ui.chefQueueSection.hidden = queued.length === 0;
+    }
+
     if (!queued.length) {
-      const empty = document.createElement("p");
-      empty.className = "card-desc";
-      empty.textContent = "No pending queued orders.";
-      ui.chefQueueList.appendChild(empty);
       return;
     }
 
@@ -1541,12 +1794,14 @@
 
   function renderOrderRecipeOptions() {
     ui.orderRecipeSelect.innerHTML = "";
-    state.recipes.forEach((recipe) => {
-      const option = document.createElement("option");
-      option.value = recipe.id;
-      option.textContent = recipe.name;
-      ui.orderRecipeSelect.appendChild(option);
-    });
+    state.recipes
+      .filter((recipe) => recipe.category !== "component")
+      .forEach((recipe) => {
+        const option = document.createElement("option");
+        option.value = recipe.id;
+        option.textContent = recipe.name;
+        ui.orderRecipeSelect.appendChild(option);
+      });
   }
 
   function addOrderToQueue() {
@@ -1751,15 +2006,41 @@
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  function recipeCategoryOf(recipe) {
+    if (recipe.category === "drinks") return "drinks";
+    if (recipe.category === "component") return "component";
+    return "food";
+  }
+
+  function recipeMatchesCategory(recipe) {
+    const category = recipeCategoryOf(recipe);
+    if (category !== state.category) return false;
+    if (state.category === "drinks" && state.drinkType) {
+      if (state.drinkType === "soul-special") {
+        return (recipe.drinkType || "") === "soul-special";
+      }
+
+      const temperature = normalizeTemperatureValue(state.drinkType);
+      const availableTemperatures = listDrinkTemperatures(recipe);
+      if (availableTemperatures.length) {
+        return availableTemperatures.includes(temperature);
+      }
+
+      return normalizeTemperatureValue(recipe.drinkType) === temperature;
+    }
+    return true;
+  }
+
   function filteredRecipes() {
     const q = state.search.trim().toLowerCase();
-    if (!q) return state.recipes;
 
     return state.recipes.filter((recipe) => {
+      if (!recipeMatchesCategory(recipe)) return false;
+      if (!q) return true;
       return (
         recipe.name.toLowerCase().includes(q) ||
         recipe.description.toLowerCase().includes(q) ||
-        recipe.ingredients.some((ing) => ing.name.toLowerCase().includes(q))
+        searchableIngredientsFor(recipe).some((ing) => ing.name.toLowerCase().includes(q))
       );
     });
   }
@@ -1778,6 +2059,13 @@
 
     if (!list.length) {
       ui.noResults.hidden = false;
+      ui.noResults.textContent = state.search.trim()
+        ? "No recipes match your search."
+        : state.category === "drinks"
+        ? "No drinks in this category yet."
+        : state.category === "component"
+        ? "No master recipes in this category yet."
+        : "No recipes yet.";
       return;
     }
 
@@ -1810,14 +2098,37 @@
       meta.appendChild(createMetaChip(`${recipe.time}`));
       meta.appendChild(createMetaChip(`${recipe.servings} servings`));
       meta.appendChild(createMetaChip(recipe.difficulty, `diff-${recipe.difficulty}`));
+
+      const temperatures = listDrinkTemperatures(recipe);
+      const sizes = listDrinkSizes(recipe, "");
+
       if (queuedForRecipe.length) {
-        meta.appendChild(createMetaChip(`Q ${queuedForRecipe.length}`, "chip-queue"));
+        card.classList.add("has-queue");
+        const queueTop = document.createElement("span");
+        queueTop.className = "card-queue-top";
+        queueTop.textContent = `Q ${queuedForRecipe.length}`;
+        card.appendChild(queueTop);
       }
 
       card.appendChild(emoji);
       card.appendChild(name);
       card.appendChild(desc);
       card.appendChild(meta);
+
+      if (temperatures.length || sizes.length) {
+        const optionMeta = document.createElement("div");
+        optionMeta.className = "card-option-meta";
+
+        temperatures.forEach((temperature) => {
+          optionMeta.appendChild(createMetaChip(formatDrinkOptionLabel(temperature), "chip-outline"));
+        });
+
+        sizes.forEach((size) => {
+          optionMeta.appendChild(createMetaChip(size, "chip-outline"));
+        });
+
+        card.appendChild(optionMeta);
+      }
 
       card.addEventListener("click", () => {
         if (queuedForRecipe.length) {
@@ -1831,12 +2142,64 @@
     });
   }
 
+  function setCategory(category) {
+    state.category = category === "drinks" || category === "component" ? category : "food";
+    const isDrinks = state.category === "drinks";
+    const isMaster = state.category === "component";
+
+    if (ui.catFoodTab) {
+      ui.catFoodTab.classList.toggle("is-active", state.category === "food");
+      ui.catFoodTab.setAttribute("aria-selected", String(state.category === "food"));
+    }
+    if (ui.catDrinksTab) {
+      ui.catDrinksTab.classList.toggle("is-active", isDrinks);
+      ui.catDrinksTab.setAttribute("aria-selected", String(isDrinks));
+    }
+    if (ui.catMasterTab) {
+      ui.catMasterTab.classList.toggle("is-active", isMaster);
+      ui.catMasterTab.setAttribute("aria-selected", String(isMaster));
+    }
+    if (ui.drinkSubtabs) {
+      ui.drinkSubtabs.hidden = !isDrinks;
+    }
+
+    renderRecipeCards();
+  }
+
+  function setDrinkType(drinkType) {
+    state.drinkType = drinkType || "hot";
+
+    if (ui.drinkSubtabs) {
+      ui.drinkSubtabs.querySelectorAll(".cat-subtab").forEach((button) => {
+        const isActive = button.getAttribute("data-drink") === state.drinkType;
+        button.classList.toggle("is-active", isActive);
+        button.setAttribute("aria-selected", String(isActive));
+      });
+    }
+
+    renderRecipeCards();
+  }
+
+  function linkedRecipeIdFor(ingredientName) {
+    const key = String(ingredientName || "").trim().toLowerCase().replace(/\s+/g, " ");
+    if (!key) return null;
+    const links = window.RECIPE_LINKS || {};
+    return Object.prototype.hasOwnProperty.call(links, key) ? links[key] : null;
+  }
+
   function openRecipeOverview(recipeId, options) {
     const recipe = state.recipes.find((r) => r.id === recipeId);
     if (!recipe) return;
 
-    const context = options && typeof options === "object" ? options : null;
-    state.activeOrderContext = context && context.orderId ? { orderId: context.orderId } : null;
+    const context = options && typeof options === "object" ? options : {};
+
+    if (context.parentId && context.parentId !== recipeId) {
+      state.recipeBackStack.push(context.parentId);
+    } else if (!context.keepStack) {
+      state.recipeBackStack = [];
+    }
+
+    state.activeOrderContext = context.orderId ? { orderId: context.orderId } : null;
 
     trackRecipeView(recipe);
     state.selectedRecipe = recipe;
@@ -1851,12 +2214,27 @@
     ui.ovMeta.appendChild(createMetaChip(`${recipe.servings} servings`));
     ui.ovMeta.appendChild(createMetaChip(recipe.difficulty, `diff-${recipe.difficulty}`));
 
+    renderOverviewDrinkOptions(recipe);
+
     ui.ovIngredients.innerHTML = "";
-    recipe.ingredients.forEach((ing) => {
+    activeIngredientsFor(recipe).forEach((ing) => {
       const li = document.createElement("li");
 
-      const name = document.createElement("span");
-      name.className = "ing-name";
+      const linkedId = linkedRecipeIdFor(ing.name);
+      const hasLink =
+        linkedId && linkedId !== recipe.id && state.recipes.some((r) => r.id === linkedId);
+
+      let name;
+      if (hasLink) {
+        name = document.createElement("button");
+        name.type = "button";
+        name.className = "ing-name ing-link";
+        name.title = "View base recipe";
+        name.addEventListener("click", () => openRecipeOverview(linkedId, { parentId: recipe.id }));
+      } else {
+        name = document.createElement("span");
+        name.className = "ing-name";
+      }
       name.textContent = ing.name;
 
       const qty = document.createElement("span");
@@ -1868,7 +2246,19 @@
       ui.ovIngredients.appendChild(li);
     });
 
+    updateOverviewBackLink();
     navigateTo("overview");
+  }
+
+  function updateOverviewBackLink() {
+    if (!ui.ovBackBtn) return;
+    if (state.recipeBackStack.length) {
+      const parentId = state.recipeBackStack[state.recipeBackStack.length - 1];
+      const parent = state.recipes.find((r) => r.id === parentId);
+      ui.ovBackBtn.textContent = parent ? `← Back to ${parent.name}` : "← Back";
+    } else {
+      ui.ovBackBtn.textContent = "← All recipes";
+    }
   }
 
   function updateStepView() {
@@ -1954,14 +2344,45 @@
     ui.doneEmoji.textContent = recipe.emoji;
     ui.doneTitle.textContent = `${recipe.name} is ready!`;
     ui.doneText.textContent = "Great work. Every step is complete and your dish is ready to serve.";
+    if (state.recipeBackStack.length) {
+      const parentId = state.recipeBackStack[state.recipeBackStack.length - 1];
+      const parent = state.recipes.find((r) => r.id === parentId);
+      ui.cookAgainBtn.textContent = parent ? `Back to ${parent.name}` : "Back to parent recipe";
+      ui.doneBackBtn?.setAttribute("hidden", "hidden");
+    } else {
+      ui.cookAgainBtn.textContent = "Cook again";
+      ui.doneBackBtn?.removeAttribute("hidden");
+    }
     markLinkedOrderPrepared();
     navigateTo("done");
+  }
+
+  function returnToRecipeContext() {
+    if (state.recipeBackStack.length) {
+      const parentId = state.recipeBackStack.pop();
+      openRecipeOverview(parentId, { keepStack: true });
+      return;
+    }
+
+    if (state.selectedRecipe) {
+      openRecipeOverview(state.selectedRecipe.id);
+      return;
+    }
+
+    openChefRecipesWorkspace();
   }
 
   function attachEvents() {
     ui.searchInput.addEventListener("input", (event) => {
       state.search = event.target.value || "";
       renderRecipeCards();
+    });
+
+    ui.catFoodTab?.addEventListener("click", () => setCategory("food"));
+    ui.catDrinksTab?.addEventListener("click", () => setCategory("drinks"));
+    ui.catMasterTab?.addEventListener("click", () => setCategory("component"));
+    ui.drinkSubtabs?.querySelectorAll(".cat-subtab").forEach((button) => {
+      button.addEventListener("click", () => setDrinkType(button.getAttribute("data-drink")));
     });
 
     ui.homeBtn.addEventListener("click", () => {
@@ -2087,16 +2508,25 @@
       exportRecipeViewsCsv(day);
     });
 
+    ui.ovBackBtn?.addEventListener("click", () => {
+      if (state.recipeBackStack.length) {
+        const parentId = state.recipeBackStack.pop();
+        openRecipeOverview(parentId, { keepStack: true });
+      } else {
+        openChefRecipesWorkspace();
+      }
+    });
+
     ui.startCookBtn.addEventListener("click", openCookView);
     ui.confirmBtn.addEventListener("click", confirmCurrentStep);
     ui.prevBtn.addEventListener("click", goToPreviousStep);
 
     ui.cookAgainBtn.addEventListener("click", () => {
-      if (!state.selectedRecipe) {
-        navigateTo("home");
-        return;
-      }
-      openRecipeOverview(state.selectedRecipe.id);
+      returnToRecipeContext();
+    });
+
+    ui.doneBackBtn?.addEventListener("click", () => {
+      returnToRecipeContext();
     });
 
     document.querySelectorAll("[data-nav]").forEach((button) => {

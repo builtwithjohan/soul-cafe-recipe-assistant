@@ -321,6 +321,12 @@ body {
   margin-top: 10px;
 }
 
+.card-option-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .chip {
   font-size: 12px;
   font-weight: 700;
@@ -343,6 +349,12 @@ body {
   color: #ffffff;
 }
 
+.chip-outline {
+  background: transparent;
+  border: 1px solid rgba(215, 184, 135, 0.4);
+  color: var(--ink-faint);
+}
+
 .chip.chip-queue {
   background: #2b6d4a;
   color: #ffffff;
@@ -353,6 +365,154 @@ body {
   color: var(--ink-faint);
   font-size: 16px;
   margin-top: 40px;
+}
+
+.recipe-workspace {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.category-rail {
+  flex: 0 0 172px;
+  position: sticky;
+  top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cat-tab {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 13px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink-soft);
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.18s, background 0.18s, color 0.18s, transform 0.18s;
+}
+
+.cat-tab:hover {
+  border-color: #a98753;
+  color: var(--ink);
+}
+
+.cat-tab.is-active {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #ffffff;
+  box-shadow: var(--shadow-sm);
+}
+
+.cat-subtabs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 4px 0 0 10px;
+  padding-left: 10px;
+  border-left: 2px solid var(--line);
+}
+
+.cat-subtabs[hidden] {
+  display: none;
+}
+
+.cat-subtab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--ink-soft);
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.18s, background 0.18s, color 0.18s;
+}
+
+.cat-subtab:hover {
+  border-color: #a98753;
+  color: var(--ink);
+}
+
+.cat-subtab.is-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+}
+
+.recipe-grid-wrap {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.card-queue-top {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: #2b6d4a;
+  color: #ffffff;
+  box-shadow: var(--shadow-sm);
+  letter-spacing: 0.3px;
+}
+
+.recipe-card.has-queue {
+  border-color: #2b6d4a;
+}
+
+#chefQueueSection {
+  margin-top: 0;
+  margin-bottom: 22px;
+  border: 1px solid #2b6d4a;
+}
+
+@media (max-width: 640px) {
+  .recipe-workspace {
+    flex-direction: column;
+  }
+  .category-rail {
+    flex: none;
+    position: static;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+  .cat-tab {
+    width: auto;
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+  .cat-subtabs {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin: 0;
+    padding-left: 0;
+    border-left: none;
+  }
+  .cat-subtab {
+    width: auto;
+    flex: 1 1 auto;
+    justify-content: center;
+  }
 }
 
 .home-end-actions {
@@ -595,6 +755,58 @@ body {
   gap: 8px;
 }
 
+.drink-options {
+  display: grid;
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.drink-option-group {
+  display: grid;
+  gap: 10px;
+}
+
+.drink-option-label {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.drink-option-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.drink-option-chip {
+  border: 1px solid var(--line);
+  background: rgba(13, 34, 51, 0.7);
+  color: var(--ink-soft);
+  border-radius: 999px;
+  padding: 10px 14px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.drink-option-chip:hover,
+.drink-option-chip:focus-visible {
+  border-color: #a98753;
+  color: var(--ink);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.drink-option-chip.is-active {
+  background: rgba(232, 129, 49, 0.18);
+  border-color: var(--brand);
+  color: #ffffff;
+}
+
 .section-title {
   font-family: "Poppins", sans-serif;
   font-size: 18px;
@@ -631,6 +843,26 @@ body {
   font-weight: 700;
   font-size: 14px;
   white-space: nowrap;
+}
+
+.ingredient-list .ing-link {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  font-weight: 600;
+  color: var(--brand);
+  cursor: pointer;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.ingredient-list .ing-link:hover,
+.ingredient-list .ing-link:focus-visible {
+  color: var(--ink);
+  outline: none;
 }
 
 .cook-topbar {

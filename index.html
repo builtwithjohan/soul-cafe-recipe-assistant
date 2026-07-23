@@ -82,17 +82,65 @@
             />
           </div>
         </div>
-        <div id="recipeGrid" class="recipe-grid" role="list"></div>
-        <p id="noResults" class="no-results" hidden>No recipes match your search.</p>
 
-        <section class="home-end-actions" aria-label="Chef order queue">
+        <section id="chefQueueSection" class="home-end-actions" aria-label="Chef order queue" hidden>
           <h2>Queue to Prepare</h2>
           <p>Pick a queued order and jump directly into cooking.</p>
           <div id="chefQueueList" class="chef-queue-list"></div>
           <p id="chefQueueStatus" class="import-status" aria-live="polite"></p>
         </section>
 
-        <section class="home-end-actions" aria-label="Recipe tools">
+        <div class="recipe-workspace">
+          <aside class="category-rail" role="tablist" aria-label="Recipe categories">
+            <button
+              id="catFoodTab"
+              class="cat-tab is-active"
+              type="button"
+              role="tab"
+              aria-selected="true"
+              data-category="food"
+            >
+              <span aria-hidden="true">🍽️</span> Food
+            </button>
+            <button
+              id="catDrinksTab"
+              class="cat-tab"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              data-category="drinks"
+            >
+              <span aria-hidden="true">🥤</span> Drinks
+            </button>
+            <button
+              id="catMasterTab"
+              class="cat-tab"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              data-category="component"
+            >
+              <span aria-hidden="true">🧩</span> Master Recipes
+            </button>
+            <div id="drinkSubtabs" class="cat-subtabs" role="tablist" aria-label="Drink types" hidden>
+              <button class="cat-subtab is-active" type="button" role="tab" aria-selected="true" data-drink="hot">
+                <span aria-hidden="true">☕</span> Hot
+              </button>
+              <button class="cat-subtab" type="button" role="tab" aria-selected="false" data-drink="cold">
+                <span aria-hidden="true">🧊</span> Cold
+              </button>
+              <button class="cat-subtab" type="button" role="tab" aria-selected="false" data-drink="soul-special">
+                <span aria-hidden="true">✨</span> Soul Special
+              </button>
+            </div>
+          </aside>
+          <div class="recipe-grid-wrap">
+            <div id="recipeGrid" class="recipe-grid" role="list"></div>
+            <p id="noResults" class="no-results" hidden>No recipes match your search.</p>
+          </div>
+        </div>
+
+        <section class="home-end-actions" aria-label="Recipe tools" hidden>
           <h2>Add or update your recipe list</h2>
           <p>Import recipes from JSON, CSV, XLS, or XLSX and start from the provided template.</p>
           <div class="home-end-actions-row">
@@ -103,7 +151,7 @@
           </div>
         </section>
 
-        <section class="home-end-actions local-gate-panel" aria-label="Local login gate">
+        <section class="home-end-actions local-gate-panel" aria-label="Local login gate" hidden>
           <h2>Local Login Gate</h2>
           <p>Optional gate for local use only. It is ignored on hosted environments.</p>
           <div class="local-gate-grid">
@@ -132,7 +180,7 @@
           <p id="gateStatus" class="import-status" aria-live="polite"></p>
         </section>
 
-        <section class="home-end-actions" aria-label="Manager dashboard tools">
+        <section class="home-end-actions" aria-label="Manager dashboard tools" hidden>
           <h2>Manager Dashboard</h2>
           <p>View daily ingredient usage and recipe view analytics.</p>
           <div class="home-end-actions-row">
@@ -144,7 +192,7 @@
       </section>
 
       <section id="view-overview" class="view">
-        <button class="back-link" data-nav="home" type="button">← All recipes</button>
+        <button class="back-link" id="ovBackBtn" type="button">← All recipes</button>
         <div class="overview-card">
           <div class="overview-hero">
             <span id="ovEmoji" class="overview-emoji" aria-hidden="true">🍲</span>
@@ -152,6 +200,17 @@
               <h1 id="ovName" class="overview-name"></h1>
               <p id="ovDesc" class="overview-desc"></p>
               <div class="meta-row" id="ovMeta"></div>
+            </div>
+          </div>
+
+          <div id="ovDrinkOptions" class="drink-options" hidden>
+            <div id="ovTemperatureGroup" class="drink-option-group" hidden>
+              <p class="drink-option-label">Temperature</p>
+              <div id="ovTemperatureOptions" class="drink-option-row"></div>
+            </div>
+            <div id="ovSizeGroup" class="drink-option-group" hidden>
+              <p class="drink-option-label">Size</p>
+              <div id="ovSizeOptions" class="drink-option-row"></div>
             </div>
           </div>
 
@@ -330,7 +389,7 @@
           <p id="doneText">Your dish is ready to serve. Enjoy!</p>
           <div class="done-actions">
             <button id="cookAgainBtn" class="btn btn-primary" type="button">Cook again</button>
-            <button class="btn btn-ghost" data-nav="home" type="button">Back to recipes</button>
+            <button id="doneBackBtn" class="btn btn-ghost" type="button">Back to recipes</button>
           </div>
         </div>
       </section>
@@ -498,6 +557,9 @@
     </dialog>
 
     <script src="src/recipes.js"></script>
+    <script src="src/drinks.js"></script>
+    <script src="src/seasonal.js"></script>
+    <script src="src/components.js"></script>
     <script src="src/store.js"></script>
     <script src="src/router.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
