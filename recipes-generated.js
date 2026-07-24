@@ -979,7 +979,7 @@ const RECIPES = [
         "ingredient": "",
         "quantity": "",
         "placement": "",
-        "action": "Make guacamole on the toast and season with olive oil",
+        "action": "Put guacamole on the toast and season with olive oil",
         "duration": ""
       },
       {
@@ -3577,6 +3577,10 @@ const RECIPES = [
       {
         "name": "Chocolate Sauce",
         "quantity": "25 gm"
+      },
+      {
+        "name": "Morde Dark Chocolate Spread",
+        "quantity": "25 gm"
       }
     ],
     "steps": [
@@ -4951,7 +4955,7 @@ const RECIPES = [
       },
       {
         "name": "sponge cake",
-        "quantity": "120 gm"
+        "quantity": "150 gm"
       },
       {
         "name": "whipping cream",
@@ -4959,7 +4963,7 @@ const RECIPES = [
       },
       {
         "name": "chocolate sauce on top",
-        "quantity": "150 ml"
+        "quantity": "120 ml"
       },
       {
         "name": "white ball topping",
