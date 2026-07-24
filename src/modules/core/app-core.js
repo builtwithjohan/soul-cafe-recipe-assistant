@@ -469,7 +469,7 @@
     const action = toText(entry.action, "");
     const duration = toText(entry.duration, "");
 
-    if (!ingredient || !quantity || !placement || !action) return null;
+    if (!action) return null;
 
     return duration
       ? { ingredient, quantity, placement, action, duration }
@@ -569,7 +569,7 @@
       const stepOrderRaw = Number(row.step_order);
       const stepOrder = Number.isFinite(stepOrderRaw) ? stepOrderRaw : index + 1;
 
-      if (stepIngredient && stepQuantity && stepPlacement && stepAction) {
+      if (stepAction) {
         recipe.steps.push({
           ingredient: stepIngredient,
           quantity: stepQuantity,
@@ -1183,7 +1183,7 @@
         return {
           ok: false,
           error:
-            "No valid recipes found in CSV. Required fields include recipe_name, ingredient_name, ingredient_quantity, step_ingredient, step_quantity, step_placement, and step_action.",
+            "No valid recipes found in CSV. Required fields include recipe_name and step_action. Ingredient and other step fields can be left blank when not needed.",
         };
       }
 

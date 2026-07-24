@@ -930,17 +930,17 @@ const RECIPES = [
         "ingredient": "",
         "quantity": "",
         "placement": "",
-        "action": "Make the guacamole:1/2 avocado half and warm it for 30 sec and smash it using fork",
+        "action": "Steps to make guacamole: 1/2 avacado half and warm it for 30sec and smash it using fork",
         "duration": ""
       },
       {
-          "ingredient": "",
+        "ingredient": "",
         "quantity": "",
         "placement": "",
         "action": "Fine chopped 2 gm tomato",
         "duration": ""
       },
-       {
+      {
         "ingredient": "",
         "quantity": "",
         "placement": "",
@@ -979,28 +979,14 @@ const RECIPES = [
         "ingredient": "",
         "quantity": "",
         "placement": "",
-        "action": "Put guacamole on the toast and drizzle olive oil",
+        "action": "Make guacamole on the toast and season with olive oil",
         "duration": ""
       },
       {
         "ingredient": "",
         "quantity": "",
         "placement": "",
-        "action": "Top with micro herbs and edible flowers if available",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Serve it in a square plate with fork and knife",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "1/2 avocado half and warm it for 30 sec and smash it using fork",
+        "action": "Top with micro herbs and edible flowers",
         "duration": ""
       }
     ]
@@ -1473,13 +1459,6 @@ const RECIPES = [
         "ingredient": "",
         "quantity": "",
         "placement": "",
-        "action": "Wrap tightly and toast on a pan/grill for a golden finish.",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
         "action": "wrap the wrap in butter paper.",
         "duration": ""
       },
@@ -1488,6 +1467,20 @@ const RECIPES = [
         "quantity": "",
         "placement": "",
         "action": "Cut it in half.",
+        "duration": ""
+      },
+      {
+        "ingredient": "",
+        "quantity": "",
+        "placement": "",
+        "action": "Warm the wrap in microwave for 30 sec",
+        "duration": ""
+      },
+      {
+        "ingredient": "",
+        "quantity": "",
+        "placement": "",
+        "action": "Take a serving plate",
         "duration": ""
       },
       {
@@ -1508,10 +1501,6 @@ const RECIPES = [
     "time": "51 min",
     "difficulty": "Easy",
     "ingredients": [
-      {
-        "name": "Beetroot Tortilla",
-        "quantity": "1"
-      },
       {
         "name": "Spicy Hummus",
         "quantity": "30 gm"
@@ -1554,14 +1543,7 @@ const RECIPES = [
         "ingredient": "",
         "quantity": "",
         "placement": "",
-        "action": "Make the falafel:",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "take the falafel batter out from fridge.",
+        "action": "To make the falafal tikki take the falafel batter out from firdge.",
         "duration": ""
       },
       {
@@ -2686,7 +2668,7 @@ const RECIPES = [
         "ingredient": "",
         "quantity": "",
         "placement": "",
-        "action": "Put the bagel in oven for 2 mins",
+        "action": "Toast the bagel in otg for 3 mins at 180 degree",
         "duration": ""
       },
       {
@@ -2844,6 +2826,41 @@ const RECIPES = [
         "ingredient": "",
         "quantity": "",
         "placement": "",
+        "action": "Steps to make guacamole: 1/2 avacado half and warm it for 30sec and smash it using fork",
+        "duration": ""
+      },
+      {
+        "ingredient": "",
+        "quantity": "",
+        "placement": "",
+        "action": "Fine chopped 2 gm tomato",
+        "duration": ""
+      },
+      {
+        "ingredient": "",
+        "quantity": "",
+        "placement": "",
+        "action": "Fine chopped 2 gm onion",
+        "duration": ""
+      },
+      {
+        "ingredient": "",
+        "quantity": "",
+        "placement": "",
+        "action": "Pinch of salt and pepper",
+        "duration": ""
+      },
+      {
+        "ingredient": "",
+        "quantity": "",
+        "placement": "",
+        "action": "Mix all the above together using fork and gucamole is ready",
+        "duration": ""
+      },
+      {
+        "ingredient": "",
+        "quantity": "",
+        "placement": "",
         "action": "Cut open the bagel in half.",
         "duration": ""
       },
@@ -2851,7 +2868,14 @@ const RECIPES = [
         "ingredient": "",
         "quantity": "",
         "placement": "",
-        "action": "Butter both sides and warm lightly in the microwave oven. 30 sec.",
+        "action": "Butter both sides and warm lightly in the microwave oven.",
+        "duration": ""
+      },
+      {
+        "ingredient": "",
+        "quantity": "",
+        "placement": "",
+        "action": "Toast the bagel in otg for 3 mins at 180 degree.",
         "duration": ""
       },
       {
@@ -2866,48 +2890,6 @@ const RECIPES = [
         "quantity": "",
         "placement": "",
         "action": "Apply generous amount of Cream Cheese on one side of bagel",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Make the guacamole:",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "1/2 avocado half and warm it for 30 sec and smash it using fork.",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Fine chopped 2 gm tomato.",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Fine chopped 2 gm onion.",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Pinch of salt and pepper.",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Mix all the above together using fork.",
         "duration": ""
       },
       {
@@ -3602,7 +3584,7 @@ const RECIPES = [
         "ingredient": "",
         "quantity": "",
         "placement": "",
-        "action": "If in Deep Freezer",
+        "action": "Take out the croissant from the deep freezer.",
         "duration": ""
       },
       {
@@ -3679,48 +3661,6 @@ const RECIPES = [
       }
     ],
     "steps": [
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Prepare the almond butter:",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Butter 100 gm (softened butter).",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Maida 100 gm.",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Powdered sugar 100 gm.",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Almond flour 70 gm.",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Mixx them well at room temp.",
-        "duration": ""
-      },
       {
         "ingredient": "",
         "quantity": "",
@@ -3810,10 +3750,6 @@ const RECIPES = [
       {
         "name": "Dark Chocolate compound",
         "quantity": "20 gm"
-      },
-      {
-        "name": "Sugar",
-        "quantity": ""
       }
     ],
     "steps": [
@@ -3843,34 +3779,6 @@ const RECIPES = [
         "quantity": "",
         "placement": "",
         "action": "Spread the pistachio spread and then close the croissant.",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "On one side apply molten morde dark chocolate.",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Fine chop 2 pistas and spread it on chocolate side of croissant.",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Dust sugar powder on the other side of croissant.",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Serve the croissant",
         "duration": ""
       }
     ]
@@ -3934,69 +3842,6 @@ const RECIPES = [
       }
     ],
     "steps": [
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Take 100 gm strawberry put it in water",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Add 10 gram baking soda to the water",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Take milk and add Vinegar to it and keep it aside",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Make the hazelnut ganache with strawberry:",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Take 50 gram hazelnut paste",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Add 65 gm fresh Cream and mix it",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Mix it well.",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Add the cleaned and nicely chopped strawberry to it",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "In a bowl:",
-        "duration": ""
-      },
       {
         "ingredient": "",
         "quantity": "",
@@ -4085,13 +3930,6 @@ const RECIPES = [
         "ingredient": "",
         "quantity": "",
         "placement": "",
-        "action": "To serve:",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
         "action": "One slice per order",
         "duration": ""
       }
@@ -4140,126 +3978,35 @@ const RECIPES = [
         "ingredient": "",
         "quantity": "",
         "placement": "",
-        "action": "Prepare the base:",
+        "action": "If cheesecake is freshly baked  Serve as it is.",
         "duration": ""
       },
       {
         "ingredient": "",
         "quantity": "",
         "placement": "",
-        "action": "Break 7-8 biscuits.",
+        "action": "If it's in deep freezer then warm the slice for 30 seconds in microwave keep the biscuit part facing the plate.",
         "duration": ""
       },
       {
         "ingredient": "",
         "quantity": "",
         "placement": "",
-        "action": "Add butter and set in pan.",
+        "action": "The turn the cheese cake on one side and warm for 10 sec.",
         "duration": ""
       },
       {
         "ingredient": "",
         "quantity": "",
         "placement": "",
-        "action": "Bake for 2 Minutes in microwave and then keep the pan fridge.",
+        "action": "the turn the cheesecake to another side and warm for 10 more sec.",
         "duration": ""
       },
       {
         "ingredient": "",
         "quantity": "",
         "placement": "",
-        "action": "Make the cake:",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Take cream cheese.",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Keep it in oven for 30 seconds.",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Repeat 30 seconds until it's soft like butter.",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Do not exceed 30 seconds.",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Add milkmaid, Fresh cream, maida, corn flour and Vanilla essence.",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Whisk it thoroughly till we get desired consistency.",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Approx 7-10 mins.",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Bake it in water bath for 35 min at 230 degree in OTG.",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "To serve:",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Check with guest If they want it warm or cold?",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "If cheesecake is freshly baked Serve as it is.",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "If Guest want warm, heat for 10-15 seconds in microwave.",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "If cheesecake is Cold/frozen Heat for 10-20 seconds until desired warmness or fluffiness.",
+        "action": "Take out the plate from the microwave and let it cool for 2 complete mins so that cheesecake temp comes down.",
         "duration": ""
       }
     ]
@@ -4287,7 +4034,35 @@ const RECIPES = [
         "ingredient": "",
         "quantity": "",
         "placement": "",
-        "action": "Make a New york Cheesecake",
+        "action": "If cheesecake is freshly baked  Serve as it is.",
+        "duration": ""
+      },
+      {
+        "ingredient": "",
+        "quantity": "",
+        "placement": "",
+        "action": "If it's in deep freezer then warm the slice for 30 seconds in microwave keep the biscuit part facing the plate.",
+        "duration": ""
+      },
+      {
+        "ingredient": "",
+        "quantity": "",
+        "placement": "",
+        "action": "The turn the cheese cake on one side and warm for 10 sec.",
+        "duration": ""
+      },
+      {
+        "ingredient": "",
+        "quantity": "",
+        "placement": "",
+        "action": "the turn the cheesecake to another side and warm for 10 more sec.",
+        "duration": ""
+      },
+      {
+        "ingredient": "",
+        "quantity": "",
+        "placement": "",
+        "action": "Take out the plate from the microwave and let it cool for 2 complete mins so that cheesecake temp comes down.",
         "duration": ""
       },
       {
@@ -4301,42 +4076,7 @@ const RECIPES = [
         "ingredient": "",
         "quantity": "",
         "placement": "",
-        "action": "Apply generous amount on the New York Cheesecake",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "To serve:",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Check with guest If they want it warm or cold?",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "If cheesecake is freshly baked Serve as it is.",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "If Guest want warm, heat for 10-15 seconds in microwave.",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "If cheesecake is Cold/frozen Heat for 10-20 seconds until desired warmness or fluffiness.",
+        "action": "Apply generous amount on the New York Cheesecake.",
         "duration": ""
       }
     ]
@@ -4364,7 +4104,35 @@ const RECIPES = [
         "ingredient": "",
         "quantity": "",
         "placement": "",
-        "action": "Make a New york Cheesecake",
+        "action": "If cheesecake is freshly baked  Serve as it is.",
+        "duration": ""
+      },
+      {
+        "ingredient": "",
+        "quantity": "",
+        "placement": "",
+        "action": "If it's in deep freezer then warm the slice for 30 seconds in microwave keep the biscuit part facing the plate.",
+        "duration": ""
+      },
+      {
+        "ingredient": "",
+        "quantity": "",
+        "placement": "",
+        "action": "The turn the cheese cake on one side and warm for 10 sec.",
+        "duration": ""
+      },
+      {
+        "ingredient": "",
+        "quantity": "",
+        "placement": "",
+        "action": "the turn the cheesecake to another side and warm for 10 more sec.",
+        "duration": ""
+      },
+      {
+        "ingredient": "",
+        "quantity": "",
+        "placement": "",
+        "action": "Take out the plate from the microwave and let it cool for 2 complete mins so that cheesecake temp comes down.\"",
         "duration": ""
       },
       {
@@ -4378,42 +4146,7 @@ const RECIPES = [
         "ingredient": "",
         "quantity": "",
         "placement": "",
-        "action": "Apply generous amount of Nutella on the New York Cheesecake",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "To serve:",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Check with guest If they want it warm or cold?",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "If cheesecake is freshly baked Serve as it is.",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "If Guest want warm, heat for 10-15 seconds in microwave.",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "If cheesecake is Cold/frozen Heat for 10-20 seconds until desired warmness or fluffiness.",
+        "action": "Apply generous amount of Nutella using a pipping bag as displayed in the display freezer on the New York Cheesecake.",
         "duration": ""
       }
     ]
@@ -4461,98 +4194,35 @@ const RECIPES = [
         "ingredient": "",
         "quantity": "",
         "placement": "",
-        "action": "Make the cake:",
+        "action": "If cheesecake is freshly baked  Serve as it is.",
         "duration": ""
       },
       {
         "ingredient": "",
         "quantity": "",
         "placement": "",
-        "action": "Take cream cheese.",
+        "action": "If it's in deep freezer then warm the slice for 30 seconds in microwave keep the biscuit part facing the plate.",
         "duration": ""
       },
       {
         "ingredient": "",
         "quantity": "",
         "placement": "",
-        "action": "Keep it in oven for 30 seconds.",
+        "action": "The turn the cheese cake on one side and warm for 10 sec.",
         "duration": ""
       },
       {
         "ingredient": "",
         "quantity": "",
         "placement": "",
-        "action": "Repeat 30 seconds until its soft like butter.",
+        "action": "the turn the cheesecake to another side and warm for 10 more sec.",
         "duration": ""
       },
       {
         "ingredient": "",
         "quantity": "",
         "placement": "",
-        "action": "Do not exceed 30 seconds",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Add milkmaid, Fresh cream, maida, corn flour and Vanilla essence.",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Whisk it thoroughly till we get desired consistency.",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Approx 7-10 mins.",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Bake for 35 min at 230 degree in OTG.",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "To serve:",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Check with guest If they want it warm or cold?",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "If cheesecake is freshly baked Serve as it is.",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "If Guest want warm, heat for 10-15 seconds in microwave.",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "If cheesecake is Cold/frozen Heat for 10-20 seconds until desired warmness or fluffiness.",
+        "action": "Take out the plate from the microwave and let it cool for 2 complete mins so that cheesecake temp comes down",
         "duration": ""
       }
     ]
@@ -5267,18 +4937,14 @@ const RECIPES = [
     ]
   },
   {
-    "id": "soul-cake",
-    "name": "Soul Cake",
+    "id": "soul-milk-chocolate-soul-cake-large",
+    "name": "Swiss milk Chocolate Soul Cake (Large)",
     "emoji": "🍫",
     "description": "Soul Cake",
     "servings": 1,
     "time": "24 min",
     "difficulty": "Easy",
     "ingredients": [
-      {
-        "name": "Swiss milk Chocolate Large",
-        "quantity": "Large"
-      },
       {
         "name": "chocolate sauce in bottom",
         "quantity": "20 ml"
@@ -5293,7 +4959,7 @@ const RECIPES = [
       },
       {
         "name": "chocolate sauce on top",
-        "quantity": "120 ml"
+        "quantity": "150 ml"
       },
       {
         "name": "white ball topping",
@@ -5378,7 +5044,7 @@ const RECIPES = [
       },
       {
         "name": "sponge cake",
-        "quantity": "60 gm"
+        "quantity": "90 gm"
       },
       {
         "name": "whipping cream",
@@ -5386,7 +5052,7 @@ const RECIPES = [
       },
       {
         "name": "chocolate sauce on top",
-        "quantity": "60 ml"
+        "quantity": "90 ml"
       },
       {
         "name": "Choco chip topping",
@@ -5395,10 +5061,6 @@ const RECIPES = [
       {
         "name": "small chocolate ball topping",
         "quantity": "10 gm"
-      },
-      {
-        "name": "chocolate stick",
-        "quantity": ""
       }
     ],
     "steps": [
@@ -5475,7 +5137,7 @@ const RECIPES = [
       },
       {
         "name": "sponge cake",
-        "quantity": "120 gm"
+        "quantity": "150 gm"
       },
       {
         "name": "whipping cream",
@@ -5561,7 +5223,7 @@ const RECIPES = [
     "id": "swiss-milk-chocolate-regular",
     "name": "Swiss Milk Chocolate (Regular)",
     "emoji": "🍽️",
-    "description": "Dish",
+    "description": "Soul Cake",
     "servings": 1,
     "time": "24 min",
     "difficulty": "Easy",
@@ -5572,7 +5234,7 @@ const RECIPES = [
       },
       {
         "name": "sponge cake",
-        "quantity": "60 gm"
+        "quantity": "90 gm"
       },
       {
         "name": "whipping cream",
@@ -5665,7 +5327,7 @@ const RECIPES = [
       },
       {
         "name": "sponge cake",
-        "quantity": "60 gm"
+        "quantity": "90 gm"
       },
       {
         "name": "whipping cream",
@@ -5751,7 +5413,7 @@ const RECIPES = [
       },
       {
         "name": "sponge cake",
-        "quantity": "120 gm"
+        "quantity": "150 gm"
       },
       {
         "name": "whipping cream",
@@ -5841,7 +5503,7 @@ const RECIPES = [
       },
       {
         "name": "sponge cake",
-        "quantity": "120 gm"
+        "quantity": "150 gm"
       },
       {
         "name": "whipping cream",
@@ -5923,7 +5585,7 @@ const RECIPES = [
       },
       {
         "name": "sponge cake",
-        "quantity": "120 gm"
+        "quantity": "150 gm"
       },
       {
         "name": "Coffee/ espresso",
@@ -6009,7 +5671,7 @@ const RECIPES = [
       },
       {
         "name": "sponge cake",
-        "quantity": "60 gm"
+        "quantity": "90 gm"
       },
       {
         "name": "Coffee/ espresso",
@@ -6095,7 +5757,7 @@ const RECIPES = [
       },
       {
         "name": "sponge cake",
-        "quantity": "60 gm"
+        "quantity": "90 gm"
       },
       {
         "name": "Coffee/ espresso",
@@ -6141,7 +5803,7 @@ const RECIPES = [
         "ingredient": "",
         "quantity": "",
         "placement": "",
-        "action": "Add Coffee and Tiramisu Syrup 2 pump.",
+        "action": "Add Coffee and Tiramisu Syrup 1 pump.",
         "duration": ""
       },
       {
@@ -6196,7 +5858,7 @@ const RECIPES = [
       },
       {
         "name": "sponge cake",
-        "quantity": "120 gm"
+        "quantity": "150 gm"
       },
       {
         "name": "Coffee/ espresso",
@@ -6242,7 +5904,7 @@ const RECIPES = [
         "ingredient": "",
         "quantity": "",
         "placement": "",
-        "action": "Add Coffee and Tiramisu Syrup 1 pump.",
+        "action": "Add Coffee and Tiramisu Syrup 2 pump.",
         "duration": ""
       },
       {
@@ -6341,21 +6003,21 @@ const RECIPES = [
         "ingredient": "",
         "quantity": "",
         "placement": "",
-        "action": "Take milk and add Vinegar to it and keep it aside.",
+        "action": "Take milk and add Vinegar to it and keep it a side.",
         "duration": ""
       },
       {
         "ingredient": "",
         "quantity": "",
         "placement": "",
-        "action": "Take powdered sugar and oil.",
+        "action": "Take powdered sugar in the milk and wisk it.",
         "duration": ""
       },
       {
         "ingredient": "",
         "quantity": "",
         "placement": "",
-        "action": "Whisk it.",
+        "action": "Take oil in the mixing bowl.",
         "duration": ""
       },
       {
@@ -6363,6 +6025,20 @@ const RECIPES = [
         "quantity": "",
         "placement": "",
         "action": "Add the milk which we kept aside to the bowl.",
+        "duration": ""
+      },
+      {
+        "ingredient": "",
+        "quantity": "",
+        "placement": "",
+        "action": "Mix it all together.",
+        "duration": ""
+      },
+      {
+        "ingredient": "",
+        "quantity": "",
+        "placement": "",
+        "action": "In another bowl take all dry ingredients as follows",
         "duration": ""
       },
       {
@@ -6411,21 +6087,21 @@ const RECIPES = [
         "ingredient": "",
         "quantity": "",
         "placement": "",
-        "action": "Grease the tin with butter and apply butter paper.",
+        "action": "Greece the tin with butter and apply butter paper.",
         "duration": ""
       },
       {
         "ingredient": "",
         "quantity": "",
         "placement": "",
-        "action": "Put batter and bake the cake for 35 mins at 180 degree in preheated oven.",
+        "action": "Put bater and bake the cake for 35 mins at 180 degree in preheated oven.",
         "duration": ""
       },
       {
         "ingredient": "",
         "quantity": "",
         "placement": "",
-        "action": "Check with tooth pick or stirrer if the cake is completely baked else put it in otg for 20 more mins.",
+        "action": "Check with tooth pick or stierrer if the cake is completeley baked else put it in otg for 20 more mins.",
         "duration": ""
       },
       {
@@ -6615,13 +6291,6 @@ const RECIPES = [
         "quantity": "",
         "placement": "",
         "action": "Fry until golden brown.",
-        "duration": ""
-      },
-      {
-        "ingredient": "",
-        "quantity": "",
-        "placement": "",
-        "action": "Let maggi cook for 7 mins.",
         "duration": ""
       },
       {
