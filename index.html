@@ -112,17 +112,7 @@
             >
               <span aria-hidden="true">🥤</span> Drinks
             </button>
-            <button
-              id="catMasterTab"
-              class="cat-tab"
-              type="button"
-              role="tab"
-              aria-selected="false"
-              data-category="component"
-            >
-              <span aria-hidden="true">🧩</span> Master Recipes
-            </button>
-            <div id="drinkSubtabs" class="cat-subtabs" role="tablist" aria-label="Drink types" hidden>
+            <div id="drinkSubtabs" class="cat-subtabs" role="tablist" aria-label="Drink types" aria-hidden="true">
               <button class="cat-subtab is-active" type="button" role="tab" aria-selected="true" data-drink="hot">
                 <span aria-hidden="true">☕</span> Hot
               </button>
@@ -133,6 +123,16 @@
                 <span aria-hidden="true">✨</span> Soul Special
               </button>
             </div>
+            <button
+              id="catMasterTab"
+              class="cat-tab"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              data-category="component"
+            >
+              <span aria-hidden="true">🧩</span> Master Recipes
+            </button>
           </aside>
           <div class="recipe-grid-wrap">
             <div id="recipeGrid" class="recipe-grid" role="list"></div>

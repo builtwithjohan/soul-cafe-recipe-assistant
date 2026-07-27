@@ -420,13 +420,36 @@ body {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin: 4px 0 0 10px;
+  margin: 2px 0 2px 10px;
   padding-left: 10px;
   border-left: 2px solid var(--line);
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-8px);
+  transition:
+    max-height 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.22s ease,
+    transform 0.22s ease,
+    margin 0.22s ease,
+    visibility 0s linear 0.32s;
 }
 
-.cat-subtabs[hidden] {
-  display: none;
+.cat-subtabs.is-open {
+  max-height: 220px;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+  margin: 6px 0 4px 10px;
+  transition:
+    max-height 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.22s ease,
+    transform 0.22s ease,
+    margin 0.22s ease,
+    visibility 0s linear 0s;
 }
 
 .cat-subtab {
@@ -511,6 +534,12 @@ body {
     margin: 0;
     padding-left: 0;
     border-left: none;
+    transform: translateY(0);
+  }
+
+  .cat-subtabs.is-open {
+    margin: 2px 0 0;
+    max-height: 260px;
   }
   .cat-subtab {
     width: auto;

@@ -2389,7 +2389,8 @@
       ui.catMasterTab.setAttribute("aria-selected", String(isMaster));
     }
     if (ui.drinkSubtabs) {
-      ui.drinkSubtabs.hidden = !isDrinks;
+      ui.drinkSubtabs.classList.toggle("is-open", isDrinks);
+      ui.drinkSubtabs.setAttribute("aria-hidden", String(!isDrinks));
     }
 
     renderRecipeCards();
