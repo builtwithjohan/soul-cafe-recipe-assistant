@@ -72,59 +72,6 @@
 
   const DRINKS = [
     {
-      id: "masala-chai",
-      name: "Masala Chai",
-      emoji: "🍵",
-      description: "Hot Drink",
-      category: "drinks",
-      drinkType: "hot",
-      servings: 1,
-      time: "8 min",
-      difficulty: "Easy",
-      temperatures: { hot: true, cold: false },
-      sizes: { "175ml": true, "250ml": true, "325ml": true, "350ml": false },
-      ingredients: [
-        ingredient("Water", "100 ml"),
-        ingredient("Milk", "100 ml"),
-        ingredient("Tea leaves", "1 tsp"),
-        ingredient("Chai masala", "1/4 tsp"),
-        ingredient("Ginger", "1 slice"),
-        ingredient("Sugar", "2 tsp"),
-      ],
-      ingredientVariants: hotSizes(
-        [
-          ingredient("Water", "75 ml"),
-          ingredient("Milk", "75 ml"),
-          ingredient("Tea leaves", "3/4 tsp"),
-          ingredient("Chai masala", "1/8 tsp"),
-          ingredient("Ginger", "1 small slice"),
-          ingredient("Sugar", "1.5 tsp"),
-        ],
-        [
-          ingredient("Water", "100 ml"),
-          ingredient("Milk", "100 ml"),
-          ingredient("Tea leaves", "1 tsp"),
-          ingredient("Chai masala", "1/4 tsp"),
-          ingredient("Ginger", "1 slice"),
-          ingredient("Sugar", "2 tsp"),
-        ],
-        [
-          ingredient("Water", "140 ml"),
-          ingredient("Milk", "140 ml"),
-          ingredient("Tea leaves", "1.25 tsp"),
-          ingredient("Chai masala", "1/3 tsp"),
-          ingredient("Ginger", "2 slices"),
-          ingredient("Sugar", "2.5 tsp"),
-        ]
-      ),
-      steps: toSteps([
-        "Boil the water with ginger and chai masala.",
-        "Add the tea leaves and simmer for 2 minutes.",
-        "Add the milk and sugar, then bring to a boil.",
-        "Strain into a cup and serve hot.",
-      ]),
-    },
-    {
       id: "hot-chocolate",
       name: "Hot Chocolate",
       emoji: "☕",
