@@ -881,6 +881,11 @@ body {
   white-space: nowrap;
 }
 
+.ingredient-list li.is-active {
+  border: 1px solid rgba(232, 129, 49, 0.45);
+  box-shadow: 0 0 0 1px rgba(232, 129, 49, 0.12);
+}
+
 .ingredient-list .ing-link {
   background: none;
   border: none;
@@ -928,6 +933,29 @@ body {
   background: linear-gradient(90deg, var(--brand), var(--brand-dark));
   border-radius: 999px;
   transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cook-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.cook-ingredients-panel {
+  position: sticky;
+  top: 16px;
+}
+
+.cook-section-title {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+.cook-ingredient-list {
+  grid-template-columns: 1fr;
+  margin-bottom: 0;
 }
 
 .step-card {
@@ -1040,6 +1068,16 @@ body {
   display: flex;
   gap: 14px;
   margin-top: 26px;
+}
+
+@media (max-width: 900px) {
+  .cook-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .cook-ingredients-panel {
+    position: static;
+  }
 }
 
 .btn {

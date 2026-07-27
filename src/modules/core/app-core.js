@@ -78,6 +78,7 @@
     ovSizeGroup: document.getElementById("ovSizeGroup"),
     ovSizeOptions: document.getElementById("ovSizeOptions"),
     ovIngredients: document.getElementById("ovIngredients"),
+    cookIngredients: document.getElementById("cookIngredients"),
     startCookBtn: document.getElementById("startCookBtn"),
 
     stepCounter: document.getElementById("stepCounter"),
@@ -409,9 +410,19 @@
     return Array.from(seen.values());
   }
 
-  function formatDrinkOptionLabel(value) {
+  function formatDrinkOptionLabel(value, temperature) {
     if (value === "hot") return "Hot";
     if (value === "cold") return "Cold";
+    if (temperature === "cold") {
+      if (value === "250ml") return "Dine In Regular (250)";
+      if (value === "325ml") return "Takeaway Regular / Dine-In Large (325)";
+      if (value === "350ml") return "Takeaway Large (350)";
+    }
+    if (temperature === "hot") {
+      if (value === "250ml") return "Takeaway Regular (250)";
+      if (value === "175ml") return "Dine In Regular (175)";
+      if (value === "350ml") return "Dine In + Takeaway Large (350)";
+    }
     return value;
   }
 
@@ -427,7 +438,7 @@
     };
   }
 
-  function renderDrinkOptionButtons(container, values, selectedValue, onSelect) {
+  function renderDrinkOptionButtons(container, values, selectedValue, onSelect, labelContext) {
     if (!container) return;
 
     container.innerHTML = "";
@@ -437,7 +448,7 @@
       button.className = "drink-option-chip";
       button.classList.toggle("is-active", value === selectedValue);
       button.setAttribute("aria-pressed", String(value === selectedValue));
-      button.textContent = formatDrinkOptionLabel(value);
+      button.textContent = formatDrinkOptionLabel(value, labelContext);
       button.addEventListener("click", () => onSelect(value));
       container.appendChild(button);
     });
@@ -468,10 +479,16 @@
       openRecipeOverview(recipe.id, { keepStack: true, orderId: state.activeOrderContext && state.activeOrderContext.orderId });
     });
 
-    renderDrinkOptionButtons(ui.ovSizeOptions, sizes, activeDrinkSelectionFor(recipe).size, (size) => {
-      updateDrinkSelection(recipe, { size });
-      openRecipeOverview(recipe.id, { keepStack: true, orderId: state.activeOrderContext && state.activeOrderContext.orderId });
-    });
+    renderDrinkOptionButtons(
+      ui.ovSizeOptions,
+      sizes,
+      activeDrinkSelectionFor(recipe).size,
+      (size) => {
+        updateDrinkSelection(recipe, { size });
+        openRecipeOverview(recipe.id, { keepStack: true, orderId: state.activeOrderContext && state.activeOrderContext.orderId });
+      },
+      selection.temperature
+    );
   }
 
   function normalizeStep(entry) {
@@ -2473,6 +2490,33 @@
     }
   }
 
+  function renderCookIngredients(recipe) {
+    if (!ui.cookIngredients) return;
+
+    const activeStep = recipe && recipe.steps ? recipe.steps[state.stepIndex] : null;
+    const activeIngredientName = toText(activeStep && activeStep.ingredient, "").toLowerCase();
+
+    ui.cookIngredients.innerHTML = "";
+    activeIngredientsFor(recipe).forEach((ing) => {
+      const li = document.createElement("li");
+      if (activeIngredientName && toText(ing.name, "").toLowerCase() === activeIngredientName) {
+        li.classList.add("is-active");
+      }
+
+      const name = document.createElement("span");
+      name.className = "ing-name";
+      name.textContent = ing.name;
+
+      const qty = document.createElement("span");
+      qty.className = "ing-qty";
+      qty.textContent = ing.quantity;
+
+      li.appendChild(name);
+      li.appendChild(qty);
+      ui.cookIngredients.appendChild(li);
+    });
+  }
+
   function updateStepView() {
     const recipe = state.selectedRecipe;
     if (!recipe) return;
@@ -2491,6 +2535,7 @@
     ui.stepQuantity.textContent = step.quantity;
     ui.stepPlacement.textContent = step.placement;
     ui.stepAction.textContent = step.action;
+    renderCookIngredients(recipe);
 
     if (step.duration) {
       ui.stepDurationWrap.hidden = false;
