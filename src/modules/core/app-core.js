@@ -135,6 +135,20 @@
     managerLoginSubmitBtn: document.getElementById("managerLoginSubmitBtn"),
     managerLoginStatus: document.getElementById("managerLoginStatus"),
 
+    recipeEditorCollection: document.getElementById("recipeEditorCollection"),
+    recipeEditorRecipe: document.getElementById("recipeEditorRecipe"),
+    recipeEditorReloadBtn: document.getElementById("recipeEditorReloadBtn"),
+    recipeEditorNewBtn: document.getElementById("recipeEditorNewBtn"),
+    recipeEditorSaveBtn: document.getElementById("recipeEditorSaveBtn"),
+    recipeEditorDeleteBtn: document.getElementById("recipeEditorDeleteBtn"),
+    recipeEditorJson: document.getElementById("recipeEditorJson"),
+    recipeEditorStatus: document.getElementById("recipeEditorStatus"),
+    recipeLinkAlias: document.getElementById("recipeLinkAlias"),
+    recipeLinkMaster: document.getElementById("recipeLinkMaster"),
+    recipeLinkSaveBtn: document.getElementById("recipeLinkSaveBtn"),
+    recipeLinkDeleteBtn: document.getElementById("recipeLinkDeleteBtn"),
+    recipeLinkStatus: document.getElementById("recipeLinkStatus"),
+
     orderCustomerInput: document.getElementById("orderCustomerInput"),
     orderRecipeSelect: document.getElementById("orderRecipeSelect"),
     orderQtyInput: document.getElementById("orderQtyInput"),
@@ -151,7 +165,7 @@
   const drinkRecipes = Array.isArray(window.DRINKS) ? window.DRINKS : [];
   const seasonalRecipes = Array.isArray(window.SEASONAL_SPECIALS) ? window.SEASONAL_SPECIALS : [];
   const componentRecipes = Array.isArray(window.COMPONENTS) ? window.COMPONENTS : [];
-  const baseRecipes = [...foodRecipes, ...drinkRecipes, ...seasonalRecipes, ...componentRecipes];
+  let baseRecipes = [...foodRecipes, ...drinkRecipes, ...seasonalRecipes, ...componentRecipes];
 
   const state = {
     recipes: [],
@@ -629,6 +643,207 @@
     ui.managerLoginStatus.classList.remove("is-success", "is-error");
     if (kind === "success") ui.managerLoginStatus.classList.add("is-success");
     if (kind === "error") ui.managerLoginStatus.classList.add("is-error");
+  }
+
+  function setRecipeServiceStatus(element, message, kind) {
+    if (!element) return;
+    element.textContent = message;
+    element.classList.remove("is-success", "is-error");
+    if (kind === "success") element.classList.add("is-success");
+    if (kind === "error") element.classList.add("is-error");
+  }
+
+  async function apiRequest(pathname, options) {
+    const response = await fetch(pathname, {
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json", ...(options && options.headers) },
+      ...options,
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      const error = new Error(payload.error || `Request failed (${response.status}).`);
+      error.status = response.status;
+      error.payload = payload;
+      throw error;
+    }
+    return payload;
+  }
+
+  async function refreshCatalogFromService() {
+    try {
+      const catalog = await apiRequest("/api/catalog");
+      baseRecipes = [
+        ...(Array.isArray(catalog.food) ? catalog.food : []),
+        ...(Array.isArray(catalog.drinks) ? catalog.drinks : []),
+        ...(Array.isArray(catalog.seasonal) ? catalog.seasonal : []),
+        ...(Array.isArray(catalog.components) ? catalog.components : []),
+      ];
+      if (catalog.links && typeof catalog.links === "object") window.RECIPE_LINKS = catalog.links;
+      mergeRecipes();
+      renderRecipeCards();
+      renderOrderRecipeOptions();
+      return true;
+    } catch (_error) {
+      return false;
+    }
+  }
+
+  async function refreshManagerSession() {
+    try {
+      const result = await apiRequest("/api/auth/session");
+      state.isManagerAuthorized = result.authenticated === true;
+      return state.isManagerAuthorized;
+    } catch (_error) {
+      state.isManagerAuthorized = false;
+      return false;
+    }
+  }
+
+  function recipeTemplateFor(collection) {
+    if (collection === "masters") {
+      return { name: "New Master Recipe", ingredients: [], instructions: [] };
+    }
+    const category = collection === "food" ? "food" : "drinks";
+    return {
+      id: `new-${collection}-recipe`,
+      name: "New Recipe",
+      emoji: category === "food" ? "🍽️" : "🥤",
+      description: "Describe this recipe.",
+      category,
+      servings: 1,
+      time: "10 min",
+      difficulty: "Easy",
+      ingredients: [],
+      steps: [],
+    };
+  }
+
+  async function loadEditorRecipeList(selectFirst) {
+    if (!ui.recipeEditorCollection || !ui.recipeEditorRecipe) return;
+    const collection = ui.recipeEditorCollection.value;
+    setRecipeServiceStatus(ui.recipeEditorStatus, "Loading recipes…", null);
+    try {
+      const result = await apiRequest(`/api/recipes?collection=${encodeURIComponent(collection)}`);
+      ui.recipeEditorRecipe.innerHTML = "";
+      const newOption = document.createElement("option");
+      newOption.value = "";
+      newOption.textContent = "— New recipe —";
+      ui.recipeEditorRecipe.appendChild(newOption);
+      result.matches.forEach((match) => {
+        const option = document.createElement("option");
+        option.value = match.id;
+        option.textContent = match.name;
+        ui.recipeEditorRecipe.appendChild(option);
+      });
+      if (selectFirst && result.matches.length) ui.recipeEditorRecipe.value = result.matches[0].id;
+      await loadSelectedEditorRecipe();
+      setRecipeServiceStatus(ui.recipeEditorStatus, `Loaded ${result.matches.length} recipes.`, "success");
+    } catch (error) {
+      if (error.status === 401) state.isManagerAuthorized = false;
+      setRecipeServiceStatus(ui.recipeEditorStatus, error.message, "error");
+    }
+  }
+
+  async function loadSelectedEditorRecipe() {
+    if (!ui.recipeEditorJson) return;
+    const collection = ui.recipeEditorCollection.value;
+    const recipeRef = ui.recipeEditorRecipe.value;
+    if (!recipeRef) {
+      ui.recipeEditorJson.value = JSON.stringify(recipeTemplateFor(collection), null, 2);
+      return;
+    }
+    try {
+      const result = await apiRequest(
+        `/api/recipes/${encodeURIComponent(collection)}/${encodeURIComponent(recipeRef)}`
+      );
+      ui.recipeEditorJson.value = JSON.stringify(result.recipe, null, 2);
+    } catch (error) {
+      setRecipeServiceStatus(ui.recipeEditorStatus, error.message, "error");
+    }
+  }
+
+  async function saveEditorRecipe() {
+    const collection = ui.recipeEditorCollection.value;
+    const recipeRef = ui.recipeEditorRecipe.value;
+    let recipe;
+    try {
+      recipe = JSON.parse(ui.recipeEditorJson.value);
+    } catch (_error) {
+      setRecipeServiceStatus(ui.recipeEditorStatus, "Recipe JSON is invalid.", "error");
+      return;
+    }
+    try {
+      const pathname = recipeRef
+        ? `/api/recipes/${encodeURIComponent(collection)}/${encodeURIComponent(recipeRef)}`
+        : "/api/recipes";
+      await apiRequest(pathname, {
+        method: recipeRef ? "PUT" : "POST",
+        body: JSON.stringify({ collection, recipe }),
+      });
+      await refreshCatalogFromService();
+      await loadEditorRecipeList(false);
+      const nextRef = collection === "masters" ? slugify(recipe.name) : recipe.id;
+      if (nextRef) ui.recipeEditorRecipe.value = nextRef;
+      await loadSelectedEditorRecipe();
+      setRecipeServiceStatus(ui.recipeEditorStatus, `${recipe.name} saved.`, "success");
+    } catch (error) {
+      setRecipeServiceStatus(ui.recipeEditorStatus, error.message, "error");
+    }
+  }
+
+  async function deleteEditorRecipe() {
+    const collection = ui.recipeEditorCollection.value;
+    const recipeRef = ui.recipeEditorRecipe.value;
+    if (!recipeRef) {
+      setRecipeServiceStatus(ui.recipeEditorStatus, "Select a saved recipe first.", "error");
+      return;
+    }
+    const recipeName = ui.recipeEditorRecipe.selectedOptions[0]?.textContent || recipeRef;
+    if (!window.confirm(`Delete ${recipeName}? This changes the shared source file.`)) return;
+    try {
+      await apiRequest(`/api/recipes/${encodeURIComponent(collection)}/${encodeURIComponent(recipeRef)}`, {
+        method: "DELETE",
+      });
+      await refreshCatalogFromService();
+      await loadEditorRecipeList(true);
+      setRecipeServiceStatus(ui.recipeEditorStatus, `${recipeName} deleted.`, "success");
+    } catch (error) {
+      setRecipeServiceStatus(ui.recipeEditorStatus, error.message, "error");
+    }
+  }
+
+  async function saveRecipeLink() {
+    const alias = toText(ui.recipeLinkAlias.value, "");
+    const masterRecipeRef = toText(ui.recipeLinkMaster.value, "");
+    if (!alias || !masterRecipeRef) {
+      setRecipeServiceStatus(ui.recipeLinkStatus, "Enter both an alias and master recipe.", "error");
+      return;
+    }
+    try {
+      await apiRequest(`/api/links/${encodeURIComponent(alias)}`, {
+        method: "PUT",
+        body: JSON.stringify({ masterRecipeRef }),
+      });
+      await refreshCatalogFromService();
+      setRecipeServiceStatus(ui.recipeLinkStatus, `${alias} now links to ${masterRecipeRef}.`, "success");
+    } catch (error) {
+      setRecipeServiceStatus(ui.recipeLinkStatus, error.message, "error");
+    }
+  }
+
+  async function deleteRecipeLink() {
+    const alias = toText(ui.recipeLinkAlias.value, "");
+    if (!alias) {
+      setRecipeServiceStatus(ui.recipeLinkStatus, "Enter an alias to remove.", "error");
+      return;
+    }
+    try {
+      await apiRequest(`/api/links/${encodeURIComponent(alias)}`, { method: "DELETE" });
+      await refreshCatalogFromService();
+      setRecipeServiceStatus(ui.recipeLinkStatus, `${alias} link removed.`, "success");
+    } catch (error) {
+      setRecipeServiceStatus(ui.recipeLinkStatus, error.message, "error");
+    }
   }
 
   function readAttemptRecord(key) {
@@ -1566,15 +1781,11 @@
     downloadCsv(lines, `recipe-views-${day}.csv`);
   }
 
-  function openManagerDashboard() {
-    if (!state.managerGateConfig) {
-      state.managerGateConfig = loadManagerGateConfig();
-    }
-
-    if (!isManagerSessionValid(state.managerGateConfig)) {
+  async function openManagerDashboard() {
+    if (!(await refreshManagerSession())) {
       state.isManagerAuthorized = false;
       setManagerLoginStatus("", null);
-      ui.managerUsernameInput.value = state.managerGateConfig.username;
+      ui.managerUsernameInput.value = "manager";
       ui.managerPasswordInput.value = "";
 
       if (ui.managerLoginDialog && typeof ui.managerLoginDialog.showModal === "function") {
@@ -1590,17 +1801,10 @@
     ui.dashboardDateInput.value = day;
     renderDashboard(day);
     navigateTo("dashboard");
+    await loadEditorRecipeList(true);
   }
 
   async function submitManagerLogin() {
-    const config = state.managerGateConfig || loadManagerGateConfig();
-
-    const lockedMs = attemptLockRemainingMs(MANAGER_ATTEMPTS_STORAGE_KEY);
-    if (lockedMs > 0) {
-      setManagerLoginStatus("Too many attempts. Try again in " + describeWait(lockedMs) + ".", "error");
-      return;
-    }
-
     const username = toText(ui.managerUsernameInput.value, "");
     const password = String(ui.managerPasswordInput.value || "").trim();
 
@@ -1609,19 +1813,18 @@
       return;
     }
 
-    const hash = await sha256Hex(password);
-    if (!hash || username !== config.username || hash !== config.passwordHash) {
-      const waitSeconds = registerFailedAttempt(MANAGER_ATTEMPTS_STORAGE_KEY);
-      setManagerLoginStatus(
-        "Invalid manager credentials. Try again in " + describeWait(waitSeconds * 1000) + ".",
-        "error"
-      );
+    try {
+      await apiRequest("/api/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ username, password }),
+      });
+    } catch (error) {
+      const retry = error.payload && error.payload.retryAfterSeconds;
+      setManagerLoginStatus(error.message + (retry ? ` Try again in ${describeWait(retry * 1000)}.` : ""), "error");
       ui.managerPasswordInput.value = "";
       return;
     }
 
-    clearFailedAttempts(MANAGER_ATTEMPTS_STORAGE_KEY);
-    markManagerSessionAuthorized(username);
     state.isManagerAuthorized = true;
     setManagerLoginStatus("Signed in.", "success");
 
@@ -1635,9 +1838,13 @@
     ui.dashboardDateInput.value = day;
     renderDashboard(day);
     navigateTo("dashboard");
+    await loadEditorRecipeList(true);
   }
 
-  function managerLogout() {
+  async function managerLogout() {
+    try {
+      await apiRequest("/api/auth/logout", { method: "POST" });
+    } catch (_error) {}
     state.isManagerAuthorized = false;
     clearManagerSession();
     navigateTo("landing");
@@ -2007,9 +2214,13 @@
   }
 
   function recipeCategoryOf(recipe) {
-    if (recipe.category === "drinks") return "drinks";
+    if (recipe.category === "drinks" || recipe.category === "special-drinks") return "drinks";
     if (recipe.category === "component") return "component";
     return "food";
+  }
+
+  function isSoulSpecialDrink(recipe) {
+    return recipe.category === "special-drinks" || recipe.drinkType === "soul-special";
   }
 
   function recipeMatchesCategory(recipe) {
@@ -2017,8 +2228,10 @@
     if (category !== state.category) return false;
     if (state.category === "drinks" && state.drinkType) {
       if (state.drinkType === "soul-special") {
-        return (recipe.drinkType || "") === "soul-special";
+        return isSoulSpecialDrink(recipe);
       }
+
+      if (isSoulSpecialDrink(recipe)) return false;
 
       const temperature = normalizeTemperatureValue(state.drinkType);
       const availableTemperatures = listDrinkTemperatures(recipe);
@@ -2035,8 +2248,7 @@
     const q = state.search.trim().toLowerCase();
 
     return state.recipes.filter((recipe) => {
-      if (!recipeMatchesCategory(recipe)) return false;
-      if (!q) return true;
+      if (!q) return recipeMatchesCategory(recipe);
       return (
         recipe.name.toLowerCase().includes(q) ||
         recipe.description.toLowerCase().includes(q) ||
@@ -2482,6 +2694,18 @@
     ui.addOrderBtn?.addEventListener("click", addOrderToQueue);
     ui.clearOrdersBtn?.addEventListener("click", clearOrderQueue);
     ui.clearPreparedOrdersBtn?.addEventListener("click", clearPreparedOrders);
+    ui.recipeEditorCollection?.addEventListener("change", () => loadEditorRecipeList(true));
+    ui.recipeEditorRecipe?.addEventListener("change", loadSelectedEditorRecipe);
+    ui.recipeEditorReloadBtn?.addEventListener("click", () => loadEditorRecipeList(true));
+    ui.recipeEditorNewBtn?.addEventListener("click", () => {
+      ui.recipeEditorRecipe.value = "";
+      loadSelectedEditorRecipe();
+      setRecipeServiceStatus(ui.recipeEditorStatus, "New recipe template ready.", null);
+    });
+    ui.recipeEditorSaveBtn?.addEventListener("click", saveEditorRecipe);
+    ui.recipeEditorDeleteBtn?.addEventListener("click", deleteEditorRecipe);
+    ui.recipeLinkSaveBtn?.addEventListener("click", saveRecipeLink);
+    ui.recipeLinkDeleteBtn?.addEventListener("click", deleteRecipeLink);
 
     ui.dashboardDateInput?.addEventListener("change", () => {
       if (!state.isManagerAuthorized) return;
@@ -2585,7 +2809,7 @@
     }
     state.orderQueue = loadOrderQueue();
     state.preparedOrders = loadPreparedOrders();
-    state.isManagerAuthorized = isManagerSessionValid(state.managerGateConfig);
+    state.isManagerAuthorized = false;
     mergeRecipes();
 
     if (!state.recipes.length) {
@@ -2618,6 +2842,7 @@
 
     state.isAuthorized = !state.gateConfig || isGateSessionValid(state.gateConfig);
     renderRecipeCards();
+    refreshCatalogFromService();
 
     function resolveRoute() {
       const hasRouter = window.AppRouter && typeof window.AppRouter.viewFromHash === "function";

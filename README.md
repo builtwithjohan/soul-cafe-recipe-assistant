@@ -9,18 +9,16 @@ A lightweight guided-cooking web app that helps you pick a recipe and complete i
 - Guided cooking mode with progress tracking
 - JSON recipe import support
 - Downloadable recipe template support
-
-## Default Recipe
-
-The app currently ships with one default recipe:
-
-- Pesto Flatbread Pizza
+- Local MCP server for recipe editing and recipe-link management
+- Authenticated manager recipe editor backed by persistent source files
 
 ## Tech Stack
 
 - HTML
 - CSS
 - Vanilla JavaScript
+- Node.js recipe service
+- Model Context Protocol SDK
 
 ## Project Structure
 

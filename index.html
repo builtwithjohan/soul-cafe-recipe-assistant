@@ -42,14 +42,14 @@
             <span class="landing-card-badge">Local Gate</span>
           </button>
 
-          <button id="openMenusWorkspaceBtn" class="landing-card" type="button" role="listitem">
+          <button id="openMenusWorkspaceBtn" class="landing-card" type="button" role="listitem" hidden>
             <span class="landing-card-icon" aria-hidden="true">📋</span>
             <h2>Menus</h2>
             <p>Browse curated menu packs and prep focus by meal period.</p>
             <span class="landing-card-badge is-open">Open Access</span>
           </button>
 
-          <button id="openOrderingWorkspaceBtn" class="landing-card" type="button" role="listitem">
+          <button id="openOrderingWorkspaceBtn" class="landing-card" type="button" role="listitem" hidden>
             <span class="landing-card-icon" aria-hidden="true">🧾</span>
             <h2>Ordering</h2>
             <p>Create queue entries quickly for dine-in or takeaway orders.</p>
@@ -76,9 +76,9 @@
               id="searchInput"
               class="search-input"
               type="search"
-              placeholder="Search recipes…"
+              placeholder="Search all food, drinks, and master recipes…"
               autocomplete="off"
-              aria-label="Search recipes"
+              aria-label="Search all recipes"
             />
           </div>
         </div>
@@ -451,6 +451,57 @@
               <tbody id="recipeViewsTableBody"></tbody>
             </table>
           </div>
+
+          <section class="recipe-editor" aria-labelledby="recipeEditorTitle">
+            <h2 id="recipeEditorTitle" class="section-title">Recipe Source Editor</h2>
+            <p class="overview-desc">
+              Changes are saved through the authenticated recipe service and become the shared source for the app and MCP.
+            </p>
+
+            <div class="recipe-editor-toolbar">
+              <div class="import-row">
+                <label class="import-label" for="recipeEditorCollection">Collection</label>
+                <select id="recipeEditorCollection" class="search-input">
+                  <option value="food">Food</option>
+                  <option value="drinks">Drinks</option>
+                  <option value="seasonal">Seasonal</option>
+                  <option value="masters">Master Recipes</option>
+                </select>
+              </div>
+              <div class="import-row">
+                <label class="import-label" for="recipeEditorRecipe">Recipe</label>
+                <select id="recipeEditorRecipe" class="search-input"></select>
+              </div>
+            </div>
+
+            <div class="home-end-actions-row recipe-editor-actions">
+              <button id="recipeEditorReloadBtn" class="btn btn-ghost" type="button">Reload List</button>
+              <button id="recipeEditorNewBtn" class="btn btn-ghost" type="button">New Recipe</button>
+              <button id="recipeEditorSaveBtn" class="btn btn-primary" type="button">Save Recipe</button>
+              <button id="recipeEditorDeleteBtn" class="btn btn-ghost" type="button">Delete Recipe</button>
+            </div>
+
+            <label class="import-label" for="recipeEditorJson">Recipe JSON</label>
+            <textarea id="recipeEditorJson" class="import-text recipe-editor-json" spellcheck="false"></textarea>
+            <p id="recipeEditorStatus" class="import-status" aria-live="polite"></p>
+
+            <h3 class="recipe-editor-subtitle">Link ingredient alias to master recipe</h3>
+            <div class="recipe-editor-toolbar">
+              <div class="import-row">
+                <label class="import-label" for="recipeLinkAlias">Ingredient alias</label>
+                <input id="recipeLinkAlias" class="search-input" type="text" placeholder="pesto sauce" />
+              </div>
+              <div class="import-row">
+                <label class="import-label" for="recipeLinkMaster">Master recipe name</label>
+                <input id="recipeLinkMaster" class="search-input" type="text" placeholder="Pesto" />
+              </div>
+            </div>
+            <div class="home-end-actions-row recipe-editor-actions">
+              <button id="recipeLinkSaveBtn" class="btn btn-primary" type="button">Save Link</button>
+              <button id="recipeLinkDeleteBtn" class="btn btn-ghost" type="button">Remove Link</button>
+            </div>
+            <p id="recipeLinkStatus" class="import-status" aria-live="polite"></p>
+          </section>
         </div>
       </section>
     </main>
@@ -556,7 +607,7 @@
       </form>
     </dialog>
 
-    <script src="recipes-generated.js"></script>
+    <script src="src/recipes.js"></script>
     <script src="src/drinks.js"></script>
     <script src="src/seasonal.js"></script>
     <script src="src/components.js"></script>

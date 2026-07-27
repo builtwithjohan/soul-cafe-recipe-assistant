@@ -23,3 +23,7 @@ dist/
 build/
 coverage/
 *.csv
+
+#Draft MCP files
+mcp
+.github/modernize
