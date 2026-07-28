@@ -27,3 +27,9 @@ coverage/
 #Draft MCP files
 mcp
 .github/modernize
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example
