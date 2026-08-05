@@ -1,8 +1,46 @@
-import { encryptPayload } from "./src/crypto-helper.js";
-
 const DEFAULT_SECRET = "SoulCafe-Recipe-Vault-Secret-2026";
 const DEFAULT_USER = "manager";
 const DEFAULT_PASS = "soulcafe123!";
+
+async function deriveKey(secretPhrase) {
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(secretPhrase || DEFAULT_SECRET);
+  const hash = await crypto.subtle.digest("SHA-256", keyData);
+  return crypto.subtle.importKey(
+    "raw",
+    hash,
+    { name: "AES-GCM" },
+    false,
+    ["encrypt", "decrypt"]
+  );
+}
+
+function bufferToBase64(buffer) {
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+
+async function encryptPayload(dataObj, secretPhrase) {
+  const key = await deriveKey(secretPhrase);
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const encoder = new TextEncoder();
+  const encodedData = encoder.encode(JSON.stringify(dataObj));
+
+  const encryptedContent = await crypto.subtle.encrypt(
+    { name: "AES-GCM", iv: iv },
+    key,
+    encodedData
+  );
+
+  return {
+    iv: bufferToBase64(iv),
+    ciphertext: bufferToBase64(encryptedContent),
+  };
+}
 
 function getCorsHeaders() {
   return {
