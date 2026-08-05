@@ -66,6 +66,60 @@ function errorResponse(message, status = 400) {
   return jsonResponse({ error: message }, status);
 }
 
+// Geolocked Region Verification (Mumbai / Andheri West Cafe Radius)
+function calculateHaversineDistanceKm(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Earth radius in km
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) *
+      Math.cos(lat2 * (Math.PI / 180)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+function verifyMumbaiGeoLock(request, env) {
+  if (env.DISABLE_GEO_LOCK === "true") return { allowed: true };
+
+  const cf = request.cf;
+  if (!cf || (!cf.country && !cf.city && !cf.latitude)) {
+    // Localhost or non-Cloudflare edge environments
+    return { allowed: true, isLocal: true };
+  }
+
+  const country = (cf.country || "").toUpperCase();
+  const city = (cf.city || "").toLowerCase();
+  const region = (cf.region || "").toLowerCase();
+
+  const lat = parseFloat(cf.latitude);
+  const lon = parseFloat(cf.longitude);
+
+  // Target: Platinum 53 West, D.N. Nagar, Andheri West, Mumbai (19.1236, 72.8362)
+  const CAFE_LAT = parseFloat(env.CAFE_LATITUDE || "19.1236");
+  const CAFE_LON = parseFloat(env.CAFE_LONGITUDE || "72.8362");
+  const MAX_RADIUS_KM = parseFloat(env.MUMBAI_GEO_RADIUS_KM || "15");
+
+  const isMumbaiRegion = country === "IN" && (city.includes("mumbai") || region.includes("maharashtra"));
+  let distanceKm = null;
+
+  if (!isNaN(lat) && !isNaN(lon)) {
+    distanceKm = calculateHaversineDistanceKm(CAFE_LAT, CAFE_LON, lat, lon);
+  }
+
+  const allowed = isMumbaiRegion && (distanceKm === null || distanceKm <= MAX_RADIUS_KM);
+
+  return {
+    allowed,
+    country,
+    city: cf.city,
+    region: cf.region,
+    distanceKm: distanceKm ? Math.round(distanceKm) : null,
+  };
+}
+
 // Session validation
 function isManagerAuthorized(request, env) {
   const cookieHeader = request.headers.get("Cookie") || "";
@@ -354,12 +408,16 @@ export default {
         return jsonResponse({ isAuthorized: isAuth, authenticated: isAuth });
       }
 
-      // #TODO: Implement Mumbai Geolocked Region Authentication using request.cf (Free Cloudflare GeoIP)
-      // Check if request.cf.country === "IN" and (request.cf.city === "Mumbai" || request.cf.region === "Maharashtra" || 50km radius)
-      // If outside Mumbai region, return errorResponse("Access Restricted: Manager authentication is restricted to the Mumbai region. Please contact system admin for access.", 403);
-
-      // Manager Login
+      // Manager Login (Geolocked to Mumbai / Andheri West Cafe Radius)
       if ((url.pathname === "/api/login" || url.pathname === "/api/auth/login") && request.method === "POST") {
+        const geoCheck = verifyMumbaiGeoLock(request, env);
+        if (!geoCheck.allowed) {
+          return errorResponse(
+            `Access Restricted: Manager authentication is restricted to the Mumbai cafe region (city: ${geoCheck.city || "unknown"}). Please contact system admin for access.`,
+            403
+          );
+        }
+
         const body = await request.json().catch(() => ({}));
         const expectedUser = env.RECIPE_ADMIN_USERNAME || DEFAULT_USER;
         const expectedPass = env.RECIPE_ADMIN_PASSWORD || DEFAULT_PASS;

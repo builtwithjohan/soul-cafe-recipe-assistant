@@ -15,3 +15,7 @@ database_id = "b63a8089-db2e-4686-ae85-6ad07bf218ec"
 [vars]
 RECIPE_ADMIN_USERNAME = "manager"
 RECIPE_ENCRYPTION_KEY = "SoulCafe-Recipe-Vault-Secret-2026"
+CAFE_LATITUDE = "19.1236"
+CAFE_LONGITUDE = "72.8362"
+MUMBAI_GEO_RADIUS_KM = "4"
+DISABLE_GEO_LOCK = "false"
