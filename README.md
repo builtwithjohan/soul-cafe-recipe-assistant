@@ -22,32 +22,95 @@ A lightweight guided-cooking web app that helps you pick a recipe and complete i
 
 ## Project Structure
 
-- index.html: Main entry page (GitHub Pages entry)
-- src/styles.css: App styling
-- src/app.js: App logic and view state
-- src/recipes.js: Default recipe data
-- src/assets/images/soul-cafe-logo.jpeg: Brand logo asset
+- `index.html`: Main single-page application shell
+- `src/styles.css`: Application and manager editor styling
+- `src/modules/core/app-core.js`: Browser state, workflows, dashboard, and API client
+- `src/recipes.js`: Live food recipe source
+- `src/drinks.js`: Drink recipe source
+- `src/seasonal.js`: Seasonal recipe source
+- `src/components.js`: Raw master recipes, browser components, and child/master links
+- `mcp/recipe-store.js`: Shared file-backed recipe repository
+- `mcp/server.js`: Stdio MCP adapter for AI clients
+- `mcp/http-server.js`: Authenticated HTTP API and static web server
+
+## MCP Server
+
+The `mcp/` folder contains a local Model Context Protocol server that can:
+
+- list recipe collections
+- search recipes
+- read a recipe by id or name
+- create or update recipes in food, drinks, seasonal, and master collections
+- delete recipes
+- manage child-to-master recipe links used by the app
+
+To run it locally:
+
+1. Open a terminal in `mcp/`.
+2. Install dependencies once with `npm install`.
+3. Start the server with `npm start`.
+
+The MCP server and web API edit the same source files. Updates made from either interface are therefore visible to both after the app refreshes its catalog.
+
+### Connect in VS Code / Copilot Chat
+
+This repo includes a workspace MCP config at `.vscode/mcp.json`.
+
+1. Keep dependencies installed in `mcp/`.
+2. Open this workspace in VS Code.
+3. Ensure MCP servers are enabled in Copilot Chat.
+4. Reload the VS Code window if the server does not appear immediately.
+
+Configured server name: `soul-cafe-recipe-mcp`.
 
 ## Run Locally
 
-Because this is a static app, you can run it in either of these ways:
+Use the Node web service when you want the application to read and update persistent recipes:
 
-1. Open index.html directly in your browser.
-2. Serve the folder with a local static server.
+1. In `mcp/`, install dependencies once with `npm install`.
+2. Copy `.env.example` settings into `.env` if `.env` does not already exist.
+3. Set a strong `RECIPE_ADMIN_PASSWORD`. Keep `.env` private.
+4. Run `npm run web` from `mcp/`.
+5. Open `http://localhost:8787`.
+6. Open the Manager Dashboard and sign in with `RECIPE_ADMIN_USERNAME` and `RECIPE_ADMIN_PASSWORD`.
 
-Example using Python:
+The web service provides:
 
-1. Open a terminal in this folder.
-2. Run: python -m http.server 5500
-3. Open: http://localhost:5500
+- `GET /api/catalog` for the browser recipe catalog
+- server-authenticated recipe CRUD for food, drinks, seasonal recipes, and raw masters
+- child ingredient alias to master recipe linking
+- an HttpOnly, same-site manager session cookie
+- static delivery of the application from the same origin
+
+Opening `index.html` directly or using a separate static server still displays bundled recipes, but persistent manager editing is unavailable because the `/api` service is not present.
+
+### Manager Editor
+
+The Manager Dashboard includes a **Recipe Source Editor**:
+
+1. Choose `Food`, `Drinks`, `Seasonal`, or `Master Recipes`.
+2. Select an existing recipe or choose **New Recipe**.
+3. Edit the JSON and save. The JSON shape follows the selected source collection.
+4. Use the link controls to connect an ingredient alias such as `pesto sauce` to a master recipe such as `Pesto`.
+
+Deletes require browser confirmation. The server independently checks the manager session on every write; browser state alone cannot authorize a source-file change.
 
 ## Deployment
 
-You can deploy this project to any static hosting platform, including:
+Deploy `mcp/http-server.js` as a long-running Node.js service and use `npm run web` as the start command. Configure these environment variables in the hosting provider:
 
-- GitHub Pages
-- Netlify
-- Vercel (static)
+- `RECIPE_ADMIN_USERNAME`
+- `RECIPE_ADMIN_PASSWORD`
+- `PORT` (usually supplied by the provider)
+
+The host must provide a **persistent writable disk** for the repository recipe files. Ephemeral/serverless filesystems lose edits during a restart or deployment. Mount or deploy the complete project on persistent storage so these files remain writable:
+
+- `src/recipes.js`
+- `src/drinks.js`
+- `src/seasonal.js`
+- `src/components.js`
+
+GitHub Pages and static-only deployments can display the bundled application, but they cannot run authenticated writes or persist recipe edits. Use one Node service instance unless session affinity/shared session storage is added; manager sessions currently live in the Node process and expire after eight hours or a restart.
 
 ## License
 

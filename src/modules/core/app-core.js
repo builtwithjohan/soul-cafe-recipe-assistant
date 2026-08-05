@@ -190,6 +190,7 @@
     preparedOrders: [],
     activeRecipeStartAt: null,
     activeOrderContext: null,
+    postManagerLoginView: "dashboard",
   };
 
   const store =
@@ -1798,22 +1799,29 @@
     downloadCsv(lines, `recipe-views-${day}.csv`);
   }
 
-  async function openManagerDashboard() {
-    if (!(await refreshManagerSession())) {
-      state.isManagerAuthorized = false;
-      setManagerLoginStatus("", null);
-      ui.managerUsernameInput.value = "manager";
-      ui.managerPasswordInput.value = "";
-
-      if (ui.managerLoginDialog && typeof ui.managerLoginDialog.showModal === "function") {
-        ui.managerLoginDialog.showModal();
-      } else {
-        ui.managerLoginDialog?.setAttribute("open", "open");
-      }
-      return;
+  async function ensureManagerAccess(targetView) {
+    if (await refreshManagerSession()) {
+      state.isManagerAuthorized = true;
+      return true;
     }
 
-    state.isManagerAuthorized = true;
+    state.isManagerAuthorized = false;
+    state.postManagerLoginView = targetView || "dashboard";
+    setManagerLoginStatus("", null);
+    ui.managerUsernameInput.value = "manager";
+    ui.managerPasswordInput.value = "";
+
+    if (ui.managerLoginDialog && typeof ui.managerLoginDialog.showModal === "function") {
+      ui.managerLoginDialog.showModal();
+    } else {
+      ui.managerLoginDialog?.setAttribute("open", "open");
+    }
+    return false;
+  }
+
+  async function openManagerDashboard() {
+    if (!(await ensureManagerAccess("dashboard"))) return;
+
     const day = ui.dashboardDateInput.value || getTodayKey();
     ui.dashboardDateInput.value = day;
     renderDashboard(day);
@@ -1849,6 +1857,15 @@
       ui.managerLoginDialog.close();
     } else {
       ui.managerLoginDialog?.removeAttribute("open");
+    }
+
+    const nextView = state.postManagerLoginView || "dashboard";
+    state.postManagerLoginView = "dashboard";
+
+    if (nextView === "home") {
+      renderRecipeCards();
+      navigateTo("home");
+      return;
     }
 
     const day = ui.dashboardDateInput.value || getTodayKey();
@@ -2072,8 +2089,8 @@
     setOrderingStatus("Prepared orders history cleared.", "success");
   }
 
-  function openChefRecipesWorkspace() {
-    if (!enforceLocalLoginGate()) {
+  async function openChefRecipesWorkspace() {
+    if (!(await ensureManagerAccess("home"))) {
       renderRecipeCards();
       return;
     }
