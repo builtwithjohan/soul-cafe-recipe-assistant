@@ -81,7 +81,7 @@ function calculateHaversineDistanceKm(lat1, lon1, lat2, lon2) {
   return R * c;
 }
 
-function verifyMumbaiGeoLock(request, env) {
+function verifyMumbaiGeoLock(request, env, customRadiusKm = null) {
   if (env.DISABLE_GEO_LOCK === "true") return { allowed: true };
 
   const cf = request.cf;
@@ -100,7 +100,10 @@ function verifyMumbaiGeoLock(request, env) {
   // Target: Platinum 53 West, D.N. Nagar, Andheri West, Mumbai (19.1236, 72.8362)
   const CAFE_LAT = parseFloat(env.CAFE_LATITUDE || "19.1236");
   const CAFE_LON = parseFloat(env.CAFE_LONGITUDE || "72.8362");
-  const MAX_RADIUS_KM = parseFloat(env.MUMBAI_GEO_RADIUS_KM || "15");
+  
+  const fallbackRadius = customRadiusKm !== null
+    ? parseFloat(customRadiusKm)
+    : parseFloat(env.MUMBAI_GEO_RADIUS_KM || "4.0");
 
   const isMumbaiRegion = country === "IN" && (city.includes("mumbai") || region.includes("maharashtra"));
   let distanceKm = null;
@@ -109,14 +112,15 @@ function verifyMumbaiGeoLock(request, env) {
     distanceKm = calculateHaversineDistanceKm(CAFE_LAT, CAFE_LON, lat, lon);
   }
 
-  const allowed = isMumbaiRegion && (distanceKm === null || distanceKm <= MAX_RADIUS_KM);
+  const allowed = isMumbaiRegion && (distanceKm === null || distanceKm <= fallbackRadius);
 
   return {
     allowed,
     country,
     city: cf.city,
     region: cf.region,
-    distanceKm: distanceKm ? Math.round(distanceKm) : null,
+    distanceKm: distanceKm ? Math.round(distanceKm * 100) / 100 : null,
+    maxRadiusKm: fallbackRadius,
   };
 }
 
@@ -394,8 +398,17 @@ export default {
         return jsonResponse({ name: "Soul Cafe Remote MCP Server", status: "online" });
       }
 
-      // Encrypted API Catalog Endpoint
+      // Encrypted API Catalog Endpoint (Geolocked strictly within 0.1km / 100m of Cafe)
       if (url.pathname === "/api/catalog") {
+        const recipeRadius = parseFloat(env.RECIPE_GEO_RADIUS_KM || "0.1");
+        const geoCheck = verifyMumbaiGeoLock(request, env, recipeRadius);
+        if (!geoCheck.allowed) {
+          return errorResponse(
+            `Access Restricted: Recipe catalog access is strictly restricted to within 100 meters of the cafe location (Platinum 53 West, Andheri West). Please contact system admin for access.`,
+            403
+          );
+        }
+
         const catalog = await fetchCatalogFromD1(env.RECIPE_DB);
         const secret = env.RECIPE_ENCRYPTION_KEY || DEFAULT_SECRET;
         const encrypted = await encryptPayload(catalog, secret);
@@ -408,12 +421,13 @@ export default {
         return jsonResponse({ isAuthorized: isAuth, authenticated: isAuth });
       }
 
-      // Manager Login (Geolocked to Mumbai / Andheri West Cafe Radius)
+      // Manager Login (Geolocked to 4.0km Cafe Radius)
       if ((url.pathname === "/api/login" || url.pathname === "/api/auth/login") && request.method === "POST") {
-        const geoCheck = verifyMumbaiGeoLock(request, env);
+        const managerRadius = parseFloat(env.MANAGER_GEO_RADIUS_KM || "4.0");
+        const geoCheck = verifyMumbaiGeoLock(request, env, managerRadius);
         if (!geoCheck.allowed) {
           return errorResponse(
-            `Access Restricted: Manager authentication is restricted to the Mumbai cafe region (city: ${geoCheck.city || "unknown"}). Please contact system admin for access.`,
+            `Access Restricted: Manager authentication is restricted to the 4 km cafe radius (city: ${geoCheck.city || "unknown"}). Please contact system admin for access.`,
             403
           );
         }

@@ -742,7 +742,18 @@
       renderRecipeCards();
       renderOrderRecipeOptions();
       return true;
-    } catch (_error) {
+    } catch (error) {
+      if (error && error.status === 403) {
+        showAppPopup(
+          "Action Restricted",
+          error.message || "Access Restricted: Recipe catalog access is strictly restricted to within 100 meters of the cafe location (Platinum 53 West). Please contact system admin for access.",
+          true
+        );
+        if (ui.noResults) {
+          ui.noResults.hidden = false;
+          ui.noResults.textContent = "Recipe vault access is geofenced to the cafe venue (within 100m of Platinum 53 West, Andheri West). Please connect from inside the cafe or contact system admin.";
+        }
+      }
       return false;
     }
   }
