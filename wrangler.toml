@@ -2,8 +2,10 @@ name = "soul-cafe-recipe-assistant"
 main = "worker.js"
 compatibility_date = "2024-04-01"
 
-[site]
-bucket = "."
+[assets]
+directory = "."
+not_found_handling = "single-page-application"
+html_handling = "auto-trailing-slash"
 
 [[d1_databases]]
 binding = "RECIPE_DB"
