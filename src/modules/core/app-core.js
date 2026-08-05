@@ -702,10 +702,37 @@
     if (kind === "error") element.classList.add("is-error");
   }
 
+  let cachedDeviceCoords = null;
+
+  function acquireDeviceGpsCoords() {
+    if (navigator.geolocation && !cachedDeviceCoords) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          if (pos && pos.coords) {
+            cachedDeviceCoords = {
+              lat: pos.coords.latitude,
+              lon: pos.coords.longitude,
+            };
+          }
+        },
+        (err) => {
+          console.log("Device GPS acquisition error or pending permission:", err.message);
+        },
+        { enableHighAccuracy: true, timeout: 5000, maximumAge: 60000 }
+      );
+    }
+  }
+
   async function apiRequest(pathname, options) {
+    acquireDeviceGpsCoords();
+    const extraHeaders = {};
+    if (cachedDeviceCoords) {
+      extraHeaders["X-Device-Lat"] = String(cachedDeviceCoords.lat);
+      extraHeaders["X-Device-Lon"] = String(cachedDeviceCoords.lon);
+    }
     const response = await fetch(pathname, {
       credentials: "same-origin",
-      headers: { "Content-Type": "application/json", ...(options && options.headers) },
+      headers: { "Content-Type": "application/json", ...extraHeaders, ...(options && options.headers) },
       ...options,
     });
     const payload = await response.json().catch(() => ({}));
