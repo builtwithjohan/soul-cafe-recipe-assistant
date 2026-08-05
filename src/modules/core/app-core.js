@@ -2878,16 +2878,15 @@
     state.orderQueue = loadOrderQueue();
     state.preparedOrders = loadPreparedOrders();
     state.isManagerAuthorized = false;
-    mergeRecipes();
+    attachEvents();
 
     if (!state.recipes.length) {
-      ui.recipeGrid.innerHTML = "";
-      ui.noResults.hidden = false;
-      ui.noResults.textContent = "No recipes are available yet. Import recipes to begin.";
-      return;
+      if (ui.recipeGrid) ui.recipeGrid.innerHTML = "";
+      if (ui.noResults) {
+        ui.noResults.hidden = false;
+        ui.noResults.textContent = "Loading recipes from vault...";
+      }
     }
-
-    attachEvents();
 
     if (!isLocalRuntime() && ui.saveGateBtn && ui.disableGateBtn) {
       ui.saveGateBtn.disabled = true;
