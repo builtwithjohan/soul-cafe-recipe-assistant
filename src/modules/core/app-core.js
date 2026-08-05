@@ -1889,6 +1889,10 @@
         body: JSON.stringify({ username, password }),
       });
     } catch (error) {
+      // #TODO: Handle Mumbai Geolocked 403 Forbidden popup dialog when login is attempted outside Mumbai region
+      if (error.status === 403) {
+        showAppPopup("Action Restricted", error.message || "Access Restricted: Manager authentication is restricted to the Mumbai region. Please contact system admin for access.", true);
+      }
       const retry = error.payload && error.payload.retryAfterSeconds;
       setManagerLoginStatus(error.message + (retry ? ` Try again in ${describeWait(retry * 1000)}.` : ""), "error");
       ui.managerPasswordInput.value = "";

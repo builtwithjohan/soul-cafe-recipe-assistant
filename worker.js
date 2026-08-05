@@ -354,6 +354,10 @@ export default {
         return jsonResponse({ isAuthorized: isAuth, authenticated: isAuth });
       }
 
+      // #TODO: Implement Mumbai Geolocked Region Authentication using request.cf (Free Cloudflare GeoIP)
+      // Check if request.cf.country === "IN" and (request.cf.city === "Mumbai" || request.cf.region === "Maharashtra" || 50km radius)
+      // If outside Mumbai region, return errorResponse("Access Restricted: Manager authentication is restricted to the Mumbai region. Please contact system admin for access.", 403);
+
       // Manager Login
       if ((url.pathname === "/api/login" || url.pathname === "/api/auth/login") && request.method === "POST") {
         const body = await request.json().catch(() => ({}));
