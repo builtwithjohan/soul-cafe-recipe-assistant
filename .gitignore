@@ -26,6 +26,9 @@ build/
 coverage/
 *.csv
 
+# Cloudflare Wrangler
+.wrangler/
+
 #Draft MCP files
 mcp
 .github/modernize
