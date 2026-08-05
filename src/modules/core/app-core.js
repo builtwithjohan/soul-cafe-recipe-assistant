@@ -2099,12 +2099,7 @@
     setOrderingStatus("Prepared orders history cleared.", "success");
   }
 
-  async function openChefRecipesWorkspace() {
-    if (!(await ensureManagerAccess("home"))) {
-      renderRecipeCards();
-      return;
-    }
-
+  function openChefRecipesWorkspace() {
     renderRecipeCards();
     navigateTo("home");
   }
