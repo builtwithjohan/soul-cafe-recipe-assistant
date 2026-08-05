@@ -39,44 +39,48 @@ function isManagerAuthorized(request, env) {
 
 // D1 helper queries
 async function fetchCatalogFromD1(db) {
-  if (!db) {
-    return { food: [], drinks: [], seasonal: [], masterComponents: {}, recipeLinks: {} };
-  }
+  const emptyCatalog = { food: [], drinks: [], seasonal: [], masterComponents: {}, recipeLinks: {} };
+  if (!db) return emptyCatalog;
 
-  const recipesResult = await db.prepare("SELECT * FROM recipes").all();
-  const mastersResult = await db.prepare("SELECT * FROM master_components").all();
-  const linksResult = await db.prepare("SELECT * FROM recipe_links").all();
+  try {
+    const recipesResult = await db.prepare("SELECT * FROM recipes").all().catch(() => ({ results: [] }));
+    const mastersResult = await db.prepare("SELECT * FROM master_components").all().catch(() => ({ results: [] }));
+    const linksResult = await db.prepare("SELECT * FROM recipe_links").all().catch(() => ({ results: [] }));
 
-  const food = [];
-  const drinks = [];
-  const seasonal = [];
+    const food = [];
+    const drinks = [];
+    const seasonal = [];
 
-  for (const row of recipesResult.results || []) {
-    try {
-      const data = JSON.parse(row.data_json);
-      if (row.category === "food") food.push(data);
-      else if (row.category === "drinks") drinks.push(data);
-      else if (row.category === "seasonal") seasonal.push(data);
-    } catch (e) {
-      console.error("Failed to parse recipe row:", row.id, e);
+    for (const row of recipesResult.results || []) {
+      try {
+        const data = JSON.parse(row.data_json);
+        if (row.category === "food") food.push(data);
+        else if (row.category === "drinks") drinks.push(data);
+        else if (row.category === "seasonal") seasonal.push(data);
+      } catch (e) {
+        console.error("Failed to parse recipe row:", row.id, e);
+      }
     }
-  }
 
-  const masterComponents = {};
-  for (const row of mastersResult.results || []) {
-    try {
-      masterComponents[row.id] = JSON.parse(row.data_json);
-    } catch (e) {
-      console.error("Failed to parse master component:", row.id, e);
+    const masterComponents = {};
+    for (const row of mastersResult.results || []) {
+      try {
+        masterComponents[row.id] = JSON.parse(row.data_json);
+      } catch (e) {
+        console.error("Failed to parse master component:", row.id, e);
+      }
     }
-  }
 
-  const recipeLinks = {};
-  for (const row of linksResult.results || []) {
-    recipeLinks[row.alias] = row.master_id;
-  }
+    const recipeLinks = {};
+    for (const row of linksResult.results || []) {
+      recipeLinks[row.alias] = row.master_id;
+    }
 
-  return { food, drinks, seasonal, masterComponents, recipeLinks };
+    return { food, drinks, seasonal, masterComponents, recipeLinks };
+  } catch (err) {
+    console.error("Error querying D1 database:", err);
+    return emptyCatalog;
+  }
 }
 
 // Remote MCP JSON-RPC handler
@@ -280,113 +284,122 @@ async function handleMcpRpc(request, env) {
 
 export default {
   async fetch(request, env, ctx) {
-    const url = new URL(request.url);
+    try {
+      const url = new URL(request.url);
 
-    if (request.method === "OPTIONS") {
-      return new Response(null, { status: 204, headers: getCorsHeaders() });
-    }
-
-    // Remote MCP Endpoint
-    if (url.pathname === "/mcp" || url.pathname === "/sse") {
-      if (request.method === "POST") {
-        return handleMcpRpc(request, env);
+      if (request.method === "OPTIONS") {
+        return new Response(null, { status: 204, headers: getCorsHeaders() });
       }
-      return jsonResponse({ name: "Soul Cafe Remote MCP Server", status: "online" });
-    }
 
-    // Encrypted API Catalog Endpoint
-    if (url.pathname === "/api/catalog") {
-      const catalog = await fetchCatalogFromD1(env.RECIPE_DB);
-      const secret = env.RECIPE_ENCRYPTION_KEY || DEFAULT_SECRET;
-      const encrypted = await encryptPayload(catalog, secret);
-      return jsonResponse(encrypted);
-    }
+      // Remote MCP Endpoint
+      if (url.pathname === "/mcp" || url.pathname === "/sse") {
+        if (request.method === "POST") {
+          return handleMcpRpc(request, env);
+        }
+        return jsonResponse({ name: "Soul Cafe Remote MCP Server", status: "online" });
+      }
 
-    // Manager Session Check
-    if (url.pathname === "/api/session") {
-      const isAuth = isManagerAuthorized(request, env);
-      return jsonResponse({ isAuthorized: isAuth });
-    }
+      // Encrypted API Catalog Endpoint
+      if (url.pathname === "/api/catalog") {
+        const catalog = await fetchCatalogFromD1(env.RECIPE_DB);
+        const secret = env.RECIPE_ENCRYPTION_KEY || DEFAULT_SECRET;
+        const encrypted = await encryptPayload(catalog, secret);
+        return jsonResponse(encrypted);
+      }
 
-    // Manager Login
-    if (url.pathname === "/api/login" && request.method === "POST") {
-      const body = await request.json().catch(() => ({}));
-      const expectedUser = env.RECIPE_ADMIN_USERNAME || DEFAULT_USER;
-      const expectedPass = env.RECIPE_ADMIN_PASSWORD || DEFAULT_PASS;
+      // Manager Session Check
+      if (url.pathname === "/api/session" || url.pathname === "/api/auth/session") {
+        const isAuth = isManagerAuthorized(request, env);
+        return jsonResponse({ isAuthorized: isAuth, authenticated: isAuth });
+      }
 
-      if (body.username === expectedUser && body.password === expectedPass) {
-        const token = crypto.randomUUID();
+      // Manager Login
+      if ((url.pathname === "/api/login" || url.pathname === "/api/auth/login") && request.method === "POST") {
+        const body = await request.json().catch(() => ({}));
+        const expectedUser = env.RECIPE_ADMIN_USERNAME || DEFAULT_USER;
+        const expectedPass = env.RECIPE_ADMIN_PASSWORD || DEFAULT_PASS;
+
+        if (body.username === expectedUser && body.password === expectedPass) {
+          const token = crypto.randomUUID();
+          return jsonResponse(
+            { success: true, authenticated: true },
+            200,
+            {
+              "Set-Cookie": `soul_recipe_session=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=28800`,
+            }
+          );
+        }
+        return errorResponse("Invalid username or password", 401);
+      }
+
+      // Manager Logout
+      if ((url.pathname === "/api/logout" || url.pathname === "/api/auth/logout") && request.method === "POST") {
         return jsonResponse(
           { success: true },
           200,
           {
-            "Set-Cookie": `soul_recipe_session=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=28800`,
+            "Set-Cookie": `soul_recipe_session=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0`,
           }
         );
       }
-      return errorResponse("Invalid username or password", 401);
-    }
 
-    // Manager Logout
-    if (url.pathname === "/api/logout" && request.method === "POST") {
-      return jsonResponse(
-        { success: true },
-        200,
-        {
-          "Set-Cookie": `soul_recipe_session=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0`,
+      // Manager Recipe Save CRUD Endpoint
+      if (url.pathname === "/api/recipes" && request.method === "POST") {
+        if (!isManagerAuthorized(request, env)) {
+          return errorResponse("Manager authentication required", 401);
         }
-      );
-    }
+        const body = await request.json().catch(() => null);
+        const { collection, recipe } = body || {};
 
-    // Manager Recipe Save CRUD Endpoint
-    if (url.pathname === "/api/recipes" && request.method === "POST") {
-      if (!isManagerAuthorized(request, env)) {
-        return errorResponse("Manager authentication required", 401);
-      }
-      const body = await request.json().catch(() => null);
-      const { collection, recipe } = body || {};
-
-      if (!collection || !recipe || !recipe.id) {
-        return errorResponse("Missing collection or recipe data", 400);
-      }
-
-      if (env.RECIPE_DB) {
-        if (collection === "masters") {
-          await env.RECIPE_DB.prepare(
-            "INSERT OR REPLACE INTO master_components (id, name, data_json, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP)"
-          )
-            .bind(recipe.id, recipe.name || recipe.id, JSON.stringify(recipe))
-            .run();
-        } else {
-          await env.RECIPE_DB.prepare(
-            "INSERT OR REPLACE INTO recipes (id, category, title, data_json, updated_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)"
-          )
-            .bind(recipe.id, collection, recipe.name || recipe.id, JSON.stringify(recipe))
-            .run();
+        if (!collection || !recipe || !recipe.id) {
+          return errorResponse("Missing collection or recipe data", 400);
         }
-      }
-      return jsonResponse({ success: true, id: recipe.id });
-    }
 
-    // Delete Recipe
-    if (url.pathname.startsWith("/api/recipes/") && request.method === "DELETE") {
-      if (!isManagerAuthorized(request, env)) {
-        return errorResponse("Manager authentication required", 401);
-      }
-      const id = url.pathname.replace("/api/recipes/", "");
-      const collection = url.searchParams.get("collection") || "food";
-
-      if (env.RECIPE_DB) {
-        if (collection === "masters") {
-          await env.RECIPE_DB.prepare("DELETE FROM master_components WHERE id = ?").bind(id).run();
-        } else {
-          await env.RECIPE_DB.prepare("DELETE FROM recipes WHERE id = ?").bind(id).run();
+        if (env.RECIPE_DB) {
+          if (collection === "masters") {
+            await env.RECIPE_DB.prepare(
+              "INSERT OR REPLACE INTO master_components (id, name, data_json, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP)"
+            )
+              .bind(recipe.id, recipe.name || recipe.id, JSON.stringify(recipe))
+              .run();
+          } else {
+            await env.RECIPE_DB.prepare(
+              "INSERT OR REPLACE INTO recipes (id, category, title, data_json, updated_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)"
+            )
+              .bind(recipe.id, collection, recipe.name || recipe.id, JSON.stringify(recipe))
+              .run();
+          }
         }
+        return jsonResponse({ success: true, id: recipe.id });
       }
-      return jsonResponse({ success: true, id });
-    }
 
-    // Fallback to Cloudflare static asset fetcher
-    return env.ASSETS.fetch(request);
+      // Delete Recipe
+      if (url.pathname.startsWith("/api/recipes/") && request.method === "DELETE") {
+        if (!isManagerAuthorized(request, env)) {
+          return errorResponse("Manager authentication required", 401);
+        }
+        const id = url.pathname.replace("/api/recipes/", "");
+        const collection = url.searchParams.get("collection") || "food";
+
+        if (env.RECIPE_DB) {
+          if (collection === "masters") {
+            await env.RECIPE_DB.prepare("DELETE FROM master_components WHERE id = ?").bind(id).run();
+          } else {
+            await env.RECIPE_DB.prepare("DELETE FROM recipes WHERE id = ?").bind(id).run();
+          }
+        }
+        return jsonResponse({ success: true, id });
+      }
+
+      // Fallback to Cloudflare static asset fetcher
+      if (env.ASSETS && typeof env.ASSETS.fetch === "function") {
+        return env.ASSETS.fetch(request);
+      }
+
+      return errorResponse("Not found", 404);
+    } catch (err) {
+      console.error("Unhandled Worker error:", err);
+      return jsonResponse({ error: err.message || "Internal Worker Error", stack: err.stack }, 500);
+    }
   },
 };
