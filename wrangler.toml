@@ -8,7 +8,7 @@ bucket = "."
 [[d1_databases]]
 binding = "RECIPE_DB"
 database_name = "soul_cafe_recipes"
-database_id = "soul-cafe-recipes-db"
+database_id = "b63a8089-db2e-4686-ae85-6ad07bf218ec"
 
 [vars]
 RECIPE_ADMIN_USERNAME = "manager"
