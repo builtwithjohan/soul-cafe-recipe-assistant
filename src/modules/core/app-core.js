@@ -689,14 +689,24 @@
 
   async function refreshCatalogFromService() {
     try {
-      const catalog = await apiRequest("/api/catalog");
+      let catalog = await apiRequest("/api/catalog");
+      if (catalog && catalog.iv && catalog.ciphertext && window.CryptoHelper) {
+        catalog = await window.CryptoHelper.decryptPayload(catalog);
+      }
+      const components = catalog.masterComponents
+        ? typeof catalog.masterComponents === "object"
+          ? Object.values(catalog.masterComponents)
+          : catalog.masterComponents
+        : catalog.components;
+
       baseRecipes = [
         ...(Array.isArray(catalog.food) ? catalog.food : []),
         ...(Array.isArray(catalog.drinks) ? catalog.drinks : []),
         ...(Array.isArray(catalog.seasonal) ? catalog.seasonal : []),
-        ...(Array.isArray(catalog.components) ? catalog.components : []),
+        ...(Array.isArray(components) ? components : []),
       ];
-      if (catalog.links && typeof catalog.links === "object") window.RECIPE_LINKS = catalog.links;
+      const links = catalog.recipeLinks || catalog.links;
+      if (links && typeof links === "object") window.RECIPE_LINKS = links;
       mergeRecipes();
       renderRecipeCards();
       renderOrderRecipeOptions();
@@ -708,8 +718,8 @@
 
   async function refreshManagerSession() {
     try {
-      const result = await apiRequest("/api/auth/session");
-      state.isManagerAuthorized = result.authenticated === true;
+      const result = await apiRequest("/api/session").catch(() => apiRequest("/api/auth/session"));
+      state.isManagerAuthorized = result.isAuthorized === true || result.authenticated === true;
       return state.isManagerAuthorized;
     } catch (_error) {
       state.isManagerAuthorized = false;

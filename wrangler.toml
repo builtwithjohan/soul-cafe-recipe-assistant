@@ -1,0 +1,15 @@
+name = "soul-cafe-recipe-assistant"
+main = "worker.js"
+compatibility_date = "2024-04-01"
+
+[site]
+bucket = "."
+
+[[d1_databases]]
+binding = "RECIPE_DB"
+database_name = "soul_cafe_recipes"
+database_id = "soul-cafe-recipes-db"
+
+[vars]
+RECIPE_ADMIN_USERNAME = "manager"
+RECIPE_ENCRYPTION_KEY = "SoulCafe-Recipe-Vault-Secret-2026"

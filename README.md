@@ -95,22 +95,47 @@ The Manager Dashboard includes a **Recipe Source Editor**:
 
 Deletes require browser confirmation. The server independently checks the manager session on every write; browser state alone cannot authorize a source-file change.
 
-## Deployment
+## Cloudflare Native Deployment & DevTools Recipe Security
 
-Deploy `mcp/http-server.js` as a long-running Node.js service and use `npm run web` as the start command. Configure these environment variables in the hosting provider:
+This version supports **Cloudflare Workers** with **Cloudflare D1** (Serverless SQLite at the edge) and **AES-256-GCM DevTools payload obfuscation**.
 
-- `RECIPE_ADMIN_USERNAME`
-- `RECIPE_ADMIN_PASSWORD`
-- `PORT` (usually supplied by the provider)
+### Features
 
-The host must provide a **persistent writable disk** for the repository recipe files. Ephemeral/serverless filesystems lose edits during a restart or deployment. Mount or deploy the complete project on persistent storage so these files remain writable:
+1. **Recipe DevTools Obfuscation**:
+   - Plain text static JS recipe files (`src/recipes.js`, `src/drinks.js`, etc.) are **not** downloaded directly by the browser.
+   - The Cloudflare Worker encrypts `/api/catalog` responses using **AES-256-GCM**.
+   - Opening browser **DevTools → Network** or **Sources** shows only scrambled ciphertext (Base64).
+   - `src/crypto-helper.js` decrypts the payload in volatile browser memory on startup.
 
-- `src/recipes.js`
-- `src/drinks.js`
-- `src/seasonal.js`
-- `src/components.js`
+2. **Persistent D1 Database**:
+   - Manager recipe edits and additions persist directly to Cloudflare D1 database bindings (`RECIPE_DB`).
 
-GitHub Pages and static-only deployments can display the bundled application, but they cannot run authenticated writes or persist recipe edits. Use one Node service instance unless session affinity/shared session storage is added; manager sessions currently live in the Node process and expire after eight hours or a restart.
+3. **Remote MCP Server (`/mcp`)**:
+   - AI tools (Copilot, Cursor, Claude Desktop) connect via Remote HTTP/SSE MCP at `https://<your-worker>.workers.dev/mcp`.
+
+### Cloudflare Deployment Steps
+
+1. Install Wrangler CLI:
+   ```bash
+   npm install -g wrangler
+   ```
+
+2. Create Cloudflare D1 Database:
+   ```bash
+   wrangler d1 create soul_cafe_recipes
+   ```
+   Update the `database_id` in `wrangler.toml`.
+
+3. Run D1 Schema & Seed Migrations:
+   ```bash
+   wrangler d1 execute soul_cafe_recipes --file=migrations/0001_init.sql
+   wrangler d1 execute soul_cafe_recipes --file=migrations/0002_seed_data.sql
+   ```
+
+4. Deploy to Cloudflare Workers:
+   ```bash
+   wrangler deploy
+   ```
 
 ## License
 
