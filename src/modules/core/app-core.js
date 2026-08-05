@@ -729,11 +729,11 @@
 
   function recipeTemplateFor(collection) {
     if (collection === "masters") {
-      return { name: "New Master Recipe", ingredients: [], instructions: [] };
+      return { id: `comp-new-${Date.now()}`, name: "New Master Recipe", ingredients: [], instructions: [] };
     }
     const category = collection === "food" ? "food" : "drinks";
     return {
-      id: `new-${collection}-recipe`,
+      id: `new-${collection}-${Date.now()}`,
       name: "New Recipe",
       emoji: category === "food" ? "🍽️" : "🥤",
       description: "Describe this recipe.",
@@ -757,7 +757,7 @@
       newOption.value = "";
       newOption.textContent = "— New recipe —";
       ui.recipeEditorRecipe.appendChild(newOption);
-      result.matches.forEach((match) => {
+      (result.matches || []).forEach((match) => {
         const option = document.createElement("option");
         option.value = match.id;
         option.textContent = match.name;
@@ -804,16 +804,16 @@
       const pathname = recipeRef
         ? `/api/recipes/${encodeURIComponent(collection)}/${encodeURIComponent(recipeRef)}`
         : "/api/recipes";
-      await apiRequest(pathname, {
+      const result = await apiRequest(pathname, {
         method: recipeRef ? "PUT" : "POST",
         body: JSON.stringify({ collection, recipe }),
       });
       await refreshCatalogFromService();
       await loadEditorRecipeList(false);
-      const nextRef = collection === "masters" ? slugify(recipe.name) : recipe.id;
-      if (nextRef) ui.recipeEditorRecipe.value = nextRef;
+      const savedId = (result && result.id) || recipe.id;
+      if (savedId && ui.recipeEditorRecipe) ui.recipeEditorRecipe.value = savedId;
       await loadSelectedEditorRecipe();
-      setRecipeServiceStatus(ui.recipeEditorStatus, `${recipe.name} saved.`, "success");
+      setRecipeServiceStatus(ui.recipeEditorStatus, `${recipe.name || savedId} saved.`, "success");
     } catch (error) {
       setRecipeServiceStatus(ui.recipeEditorStatus, error.message, "error");
     }

@@ -103,7 +103,8 @@ async function fetchCatalogFromD1(db) {
     const masterComponents = {};
     for (const row of mastersResult.results || []) {
       try {
-        masterComponents[row.id] = JSON.parse(row.data_json);
+        const data = JSON.parse(row.data_json);
+        masterComponents[row.id] = data;
       } catch (e) {
         console.error("Failed to parse master component:", row.id, e);
       }
@@ -234,6 +235,7 @@ async function handleMcpRpc(request, env) {
         ...catalog.food.map((r) => ({ ...r, _collection: "food" })),
         ...catalog.drinks.map((r) => ({ ...r, _collection: "drinks" })),
         ...catalog.seasonal.map((r) => ({ ...r, _collection: "seasonal" })),
+        ...Object.values(catalog.masterComponents).map((r) => ({ ...r, _collection: "masters" })),
       ].filter(
         (r) =>
           (r.name && r.name.toLowerCase().includes(q)) ||
@@ -255,6 +257,7 @@ async function handleMcpRpc(request, env) {
         ...catalog.food.map((r) => ({ ...r, _collection: "food" })),
         ...catalog.drinks.map((r) => ({ ...r, _collection: "drinks" })),
         ...catalog.seasonal.map((r) => ({ ...r, _collection: "seasonal" })),
+        ...Object.values(catalog.masterComponents).map((r) => ({ ...r, _collection: "masters" })),
       ];
       const match = all.find((r) => (r.id && r.id.toLowerCase() === idStr) || (r.name && r.name.toLowerCase() === idStr));
 
@@ -381,17 +384,69 @@ export default {
         );
       }
 
+      // Manager Recipe List Endpoint for Editor Dropdown
+      if (url.pathname === "/api/recipes" && request.method === "GET") {
+        const collection = url.searchParams.get("collection") || "food";
+        let matches = [];
+        if (env.RECIPE_DB) {
+          if (collection === "masters") {
+            const res = await env.RECIPE_DB.prepare("SELECT id, name FROM master_components").all().catch(() => ({ results: [] }));
+            matches = (res.results || []).map((r) => ({ id: r.id, name: r.name }));
+          } else {
+            const res = await env.RECIPE_DB.prepare("SELECT id, title as name FROM recipes WHERE category = ?").bind(collection).all().catch(() => ({ results: [] }));
+            matches = (res.results || []).map((r) => ({ id: r.id, name: r.name }));
+          }
+        }
+        return jsonResponse({ matches });
+      }
+
+      // Single Recipe Fetch for Editor
+      if (url.pathname.startsWith("/api/recipes/") && request.method === "GET") {
+        const parts = url.pathname.replace("/api/recipes/", "").split("/");
+        let collection = "food";
+        let recipeId = "";
+        if (parts.length >= 2) {
+          collection = parts[0];
+          recipeId = parts[1];
+        } else {
+          recipeId = parts[0];
+        }
+
+        let recipe = null;
+        if (env.RECIPE_DB && recipeId) {
+          if (collection === "masters") {
+            const row = await env.RECIPE_DB.prepare("SELECT data_json FROM master_components WHERE id = ?").bind(recipeId).first().catch(() => null);
+            if (row) recipe = JSON.parse(row.data_json);
+          } else {
+            const row = await env.RECIPE_DB.prepare("SELECT data_json FROM recipes WHERE id = ?").bind(recipeId).first().catch(() => null);
+            if (row) recipe = JSON.parse(row.data_json);
+          }
+        }
+        if (recipe) {
+          return jsonResponse({ recipe });
+        }
+        return errorResponse("Recipe not found", 404);
+      }
+
       // Manager Recipe Save CRUD Endpoint
-      if (url.pathname === "/api/recipes" && request.method === "POST") {
+      if ((url.pathname === "/api/recipes" || url.pathname.startsWith("/api/recipes/")) && (request.method === "POST" || request.method === "PUT")) {
         if (!isManagerAuthorized(request, env)) {
           return errorResponse("Manager authentication required", 401);
         }
         const body = await request.json().catch(() => null);
-        const { collection, recipe } = body || {};
+        let { collection, recipe } = body || {};
 
-        if (!collection || !recipe || !recipe.id) {
+        if (!collection || !recipe) {
           return errorResponse("Missing collection or recipe data", 400);
         }
+
+        const nameSlug = recipe.name ? recipe.name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") : "";
+        const fallbackId = collection === "masters"
+          ? (nameSlug ? `comp-${nameSlug}` : `comp-new-${Date.now()}`)
+          : (nameSlug || `new-recipe-${Date.now()}`);
+
+        const recipeId = recipe.id || fallbackId;
+        recipe = { ...recipe, id: recipeId, category: recipe.category || (collection === "masters" ? "component" : collection) };
 
         if (env.RECIPE_DB) {
           if (collection === "masters") {
