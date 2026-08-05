@@ -136,6 +136,12 @@
     managerLoginSubmitBtn: document.getElementById("managerLoginSubmitBtn"),
     managerLoginStatus: document.getElementById("managerLoginStatus"),
 
+    appErrorModal: document.getElementById("appErrorModal"),
+    appErrorTitle: document.getElementById("appErrorTitle"),
+    appErrorMessage: document.getElementById("appErrorMessage"),
+    appErrorOkBtn: document.getElementById("appErrorOkBtn"),
+    appErrorCloseIconBtn: document.getElementById("appErrorCloseIconBtn"),
+
     recipeEditorCollection: document.getElementById("recipeEditorCollection"),
     recipeEditorRecipe: document.getElementById("recipeEditorRecipe"),
     recipeEditorReloadBtn: document.getElementById("recipeEditorReloadBtn"),
@@ -205,6 +211,31 @@
 
   const subscribe = store.subscribe;
   const publish = store.publish;
+
+  function showAppPopup(title, message, isCritical = false) {
+    if (!ui.appErrorModal) return;
+    if (ui.appErrorTitle) ui.appErrorTitle.textContent = title || "Notice";
+    if (ui.appErrorMessage) ui.appErrorMessage.textContent = message || "An unexpected operation occurred. Please contact system admin for this feature.";
+    if (isCritical) {
+      ui.appErrorModal.classList.add("is-critical");
+    } else {
+      ui.appErrorModal.classList.remove("is-critical");
+    }
+    if (typeof ui.appErrorModal.showModal === "function") {
+      ui.appErrorModal.showModal();
+    } else {
+      ui.appErrorModal.setAttribute("open", "open");
+    }
+  }
+
+  function closeAppPopup() {
+    if (!ui.appErrorModal) return;
+    if (typeof ui.appErrorModal.close === "function") {
+      ui.appErrorModal.close();
+    } else {
+      ui.appErrorModal.removeAttribute("open");
+    }
+  }
 
   function navigateTo(viewName) {
     const viewEl = views[viewName];
@@ -798,6 +829,7 @@
       recipe = JSON.parse(ui.recipeEditorJson.value);
     } catch (_error) {
       setRecipeServiceStatus(ui.recipeEditorStatus, "Recipe JSON is invalid.", "error");
+      showAppPopup("Invalid Recipe Format", "Recipe JSON syntax is invalid. Please check formatting or contact system admin for assistance.", false);
       return;
     }
     try {
@@ -816,6 +848,7 @@
       setRecipeServiceStatus(ui.recipeEditorStatus, `${recipe.name || savedId} saved.`, "success");
     } catch (error) {
       setRecipeServiceStatus(ui.recipeEditorStatus, error.message, "error");
+      showAppPopup("Action Restricted", `${error.message || "Unable to save recipe."} Please contact system admin for this feature.`, true);
     }
   }
 
@@ -824,6 +857,7 @@
     const recipeRef = ui.recipeEditorRecipe.value;
     if (!recipeRef) {
       setRecipeServiceStatus(ui.recipeEditorStatus, "Select a saved recipe first.", "error");
+      showAppPopup("Action Restricted", "Please select a saved recipe before attempting to delete.", false);
       return;
     }
     const recipeName = ui.recipeEditorRecipe.selectedOptions[0]?.textContent || recipeRef;
@@ -837,6 +871,7 @@
       setRecipeServiceStatus(ui.recipeEditorStatus, `${recipeName} deleted.`, "success");
     } catch (error) {
       setRecipeServiceStatus(ui.recipeEditorStatus, error.message, "error");
+      showAppPopup("Action Restricted", `${error.message || "Unable to delete recipe."} Please contact system admin for this feature.`, true);
     }
   }
 
@@ -2749,6 +2784,8 @@
       setImportStatus("Imported recipes cleared.", "success");
     });
 
+    ui.appErrorOkBtn?.addEventListener("click", closeAppPopup);
+    ui.appErrorCloseIconBtn?.addEventListener("click", closeAppPopup);
     ui.saveGateBtn?.addEventListener("click", saveLocalGate);
     ui.disableGateBtn?.addEventListener("click", disableLocalGate);
     ui.loginSubmitBtn?.addEventListener("click", submitLocalGateLogin);
@@ -2877,6 +2914,18 @@
     }
     state.orderQueue = loadOrderQueue();
     state.preparedOrders = loadPreparedOrders();
+    window.addEventListener("error", (event) => {
+      console.error("Global Error Caught:", event.error || event.message);
+      const msg = event.message || "An unexpected runtime issue occurred.";
+      showAppPopup("Action Restricted", `${msg} Please contact system admin for this feature.`, true);
+    });
+
+    window.addEventListener("unhandledrejection", (event) => {
+      console.error("Unhandled Rejection Caught:", event.reason);
+      const reasonMsg = event.reason?.message || String(event.reason || "");
+      showAppPopup("Action Restricted", `${reasonMsg || "Operation failed."} Please contact system admin for this feature.`, false);
+    });
+
     state.isManagerAuthorized = false;
     attachEvents();
 

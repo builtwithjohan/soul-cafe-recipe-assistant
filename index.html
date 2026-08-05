@@ -614,6 +614,19 @@
       </form>
     </dialog>
 
+    <dialog id="appErrorModal" class="import-dialog error-modal">
+      <div class="import-panel">
+        <div class="import-header">
+          <h2 id="appErrorTitle">Notice</h2>
+          <button id="appErrorCloseIconBtn" class="btn-close" type="button" aria-label="Close">×</button>
+        </div>
+        <p id="appErrorMessage" class="import-help" style="margin-bottom: 20px; font-size: 15px; color: var(--ink); line-height: 1.5;"></p>
+        <div class="import-actions">
+          <button id="appErrorOkBtn" class="btn btn-primary" type="button">OK</button>
+        </div>
+      </div>
+    </dialog>
+
     <script src="src/crypto-helper.js"></script>
     <script src="src/store.js"></script>
     <script src="src/router.js"></script>
